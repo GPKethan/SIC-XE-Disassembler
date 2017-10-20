@@ -103,8 +103,6 @@ u_map_iter SymbolTable::end() {
 //  Which means its the SymbolTable, otherwise its the littab
 bool SymbolTable::checkTable(string currLine, ifstream& file) {
 
-	// If we're supposed to account for weird SymbolTable input this will need to be fixed; specifically
-	//  the last part after ||
 	if ((currLine.substr(0, 4) == "Name" && peekLine(file) == '-') ||
 		currLine[0] == ' ' || currLine.size() == 0) {
 		return false;

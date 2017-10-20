@@ -1,3 +1,6 @@
+#ifndef SYMBOL_H_
+#define SYMBOL_H_
+
 #pragma once
 #include <string>
 #include <exception>
@@ -39,3 +42,4 @@ private:
 	bool isAbsolute;			// Is the value absolute? If not then its relative
 
 };
+#endif //SYMBOL_H_

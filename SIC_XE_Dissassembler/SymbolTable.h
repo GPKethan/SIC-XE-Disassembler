@@ -1,3 +1,6 @@
+#ifndef SYMBOLTABLE_H_
+#define SYMBOLTABLE_H_
+
 #pragma once
 #include <iostream>
 #include <unordered_map>
@@ -39,3 +42,5 @@ private:
 	unordered_map<int, Symbol> table;
 
 };
+
+#endif //SYMBOLTABLE_H_

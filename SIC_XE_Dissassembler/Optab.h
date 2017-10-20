@@ -1,3 +1,6 @@
+#ifndef OPTAB_H_
+#define OPTAB_H_
+
 #pragma once
 #include <iostream>
 #include <unordered_map>
@@ -97,3 +100,4 @@ private:
 		{ "DC", pair<string, int>("wd", 4) }
 	};
 };
+#endif //OPTAB_H_

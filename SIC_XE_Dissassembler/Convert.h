@@ -1,3 +1,6 @@
+#ifndef CONVERT_H_
+#define CONVERT_H_
+
 #pragma once
 #include <algorithm>
 #include <bitset>
@@ -58,3 +61,5 @@ public:
 
 
 };
+
+#endif //CONVERT_H_

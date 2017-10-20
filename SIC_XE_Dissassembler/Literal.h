@@ -1,3 +1,6 @@
+#ifndef LITERAL_H_
+#define LITERAL_H_
+
 #pragma once
 #include <string>
 #include <exception>
@@ -12,6 +15,7 @@ public:
 	Literal() {
 		throw defaultCtorExcept;
 	};
+
 	Literal(string name, string literal, int length, int addr) {
 		this->name = name;
 		this->literal = literal;
@@ -44,3 +48,5 @@ private:
 	int addr;
 
 };
+
+#endif //LITERAL_H_

@@ -1,3 +1,6 @@
+#ifndef LITERALTABLE_H_
+#define LITERALTABLE_H_
+
 #pragma once
 #include <iostream>
 #include <unordered_map>
@@ -44,3 +47,4 @@ private:
 	unordered_map<int, Literal> table;
 
 };
+#endif //LITERALTABLE_H_
