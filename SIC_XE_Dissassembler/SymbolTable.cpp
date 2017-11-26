@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <string>
 #include <algorithm>
@@ -12,7 +13,7 @@
 #include "SymbolTable.h"
 #include "Convert.h"
 
-typedef unordered_map<int, Symbol>::iterator u_map_iter;
+typedef unordered_map<int, SpecialSymbol>::iterator u_map_iter;
 
 using namespace std;
 
@@ -52,32 +53,59 @@ SymbolTable::SymbolTable(string filename) {
 		string symbol = removeWhitespace(currLine.substr(SYM_POS, MAX_SYM));
 		int value = Convert::hexToDecimal(currLine.substr(VAL_POS, MAX_VAL));
 		bool flag = (currLine[FLG_POS] == 'A') ? 1 : 0;
-		Symbol sym(symbol, value, flag);
+		SpecialSymbol sym(symbol, value, flag, tableArray.size());
 
 		/*
 		This was added in for something, but I dont remember why
+		maybe if an absolute symbol has the same value as a relative???
 		if (table[value].getValue() == value)
 			value *= -1;
 		*/
 
+		tableArray.push_back(sym);
 		table[value] = sym;
 
 	}
 
 	temPrint();
 
-}
+};
+
+SymbolTable SymbolTable::open(string filename) {
+	return SymbolTable(filename);
+};
 
 string SymbolTable::getSymbol(int addr) {
 
 	u_map_iter it = table.find(addr);
 	if (it == table.end())
 		return "";
-
-	Symbol temp = table.find(addr)->second;
+	
+	SpecialSymbol temp = table.find(addr)->second;
 	return temp.getSymbol();
 
-}
+};
+
+SpecialSymbol SymbolTable::getNextSymbol(int addr) {
+
+	// Get current symbol
+	SpecialSymbol curr = table.find(addr)->second;
+	int currIndex = curr.getIndexInArray();
+
+	if (currIndex + 1 >= tableArray.size())
+		return SpecialSymbol(to_string(INT_MIN), INT_MIN, false, -1);
+
+	return tableArray[currIndex + 1];
+
+};
+
+int SymbolTable::getAddress(string symbol) {
+	for (auto curr : tableArray) {
+		if (curr.getSymbol() == symbol)
+			return curr.getValue();
+	}
+	return -1;
+};
 
 bool SymbolTable::getFlag(int addr) {
 
@@ -85,18 +113,22 @@ bool SymbolTable::getFlag(int addr) {
 	if (it == table.end())
 		return "";
 
-	Symbol temp = table.find(addr)->second;
+	SpecialSymbol temp = table.find(addr)->second;
 	return temp.getIsAbsolute();
 
-}
+};
 
 u_map_iter SymbolTable::begin() {
 	return table.begin();
-}
+};
 
 u_map_iter SymbolTable::end() {
 	return table.end();
-}
+};
+
+vector<SpecialSymbol> SymbolTable::toArray() {
+	return tableArray;
+};
 
 // If the first char of input is 'S' then that means we're looking at
 //  "Symbol  Value   Flags:"
@@ -109,8 +141,8 @@ bool SymbolTable::checkTable(string currLine, ifstream& file) {
 	}
 
 	return true;
-
-}
+	
+};
 
 // return the first char of the next line
 char SymbolTable::peekLine(ifstream& file) {
@@ -126,7 +158,7 @@ char SymbolTable::peekLine(ifstream& file) {
 
 	return line[0];
 
-}
+};
 
 string SymbolTable::removeWhitespace(string curr) {
 
@@ -139,8 +171,7 @@ string SymbolTable::removeWhitespace(string curr) {
 
 	return curr.substr(0, end);
 
-}
-
+};
 
 void SymbolTable::temPrint() {
 
@@ -150,10 +181,13 @@ void SymbolTable::temPrint() {
 	for (u_map_iter it = table.begin(); it != table.end(); it++) {
 
 		int value = it->first;
-		Symbol sym = it->second;
+		SpecialSymbol sym = it->second;
+		string abs = "R";
+		if (sym.getIsAbsolute())
+			abs = "A";
 
-		cout << value << " => " << sym.getSymbol() << endl;
+		cout << value << "\t=>" << setw(10) << sym.getSymbol() << setw(10) << abs << endl;
 
 	}
 
-}
+};

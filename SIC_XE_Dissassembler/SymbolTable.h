@@ -4,10 +4,9 @@
 #pragma once
 #include <iostream>
 #include <unordered_map>
-#include <exception>
 
-#include "Symbol.h"
-#include "CtorException.h"
+#include "SpecialSymbol.h"
+//#include "CtorException.h"
 
 // Some Definitions to make life easier
 #define MAX_SYM 8
@@ -22,24 +21,32 @@ using namespace std;
 class SymbolTable {
 public:
 	SymbolTable() {
-		throw defaultCtorExcept;
+		//throw CtorException();
 	};
 
 	SymbolTable(string filename);
 
+	static SymbolTable open(string filename);
+
 	string getSymbol(int addr);
+	SpecialSymbol getNextSymbol(int addr);
+	int getAddress(string symbol);
 	bool getFlag(int addr);
-	unordered_map<int, Symbol>::iterator begin();
-	unordered_map<int, Symbol>::iterator end();
+	unordered_map<int, SpecialSymbol>::iterator begin();
+	unordered_map<int, SpecialSymbol>::iterator end();
+
+	vector<SpecialSymbol> toArray();
+
+	void temPrint();
 
 private:
 	bool checkTable(string, ifstream&);
 	char peekLine(ifstream&);
-	void temPrint();
 
 	string removeWhitespace(string);
 
-	unordered_map<int, Symbol> table;
+	unordered_map<int, SpecialSymbol> table;
+	vector<SpecialSymbol> tableArray;		// Used to get the original ordering of the symbols
 
 };
 

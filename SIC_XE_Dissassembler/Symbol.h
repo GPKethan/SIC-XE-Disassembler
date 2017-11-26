@@ -3,9 +3,7 @@
 
 #pragma once
 #include <string>
-#include <exception>
-
-#include "CtorException.h"
+//#include "CtorException.h"
 
 using namespace std;
 
@@ -13,7 +11,7 @@ class Symbol {
 public:
 	// This constructor should never be called
 	Symbol() {
-		throw defaultCtorExcept;
+		//throw CtorException();
 	};
 
 	Symbol(string symbol, int value, bool isAbsolute) {
@@ -35,7 +33,7 @@ public:
 		return this->isAbsolute;
 	};
 
-private:
+protected:
 	// Variables
 	string symbol;				// Name of the symbol
 	int value;					// Value/Address of the symbol

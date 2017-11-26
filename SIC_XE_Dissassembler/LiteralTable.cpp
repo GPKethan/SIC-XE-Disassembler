@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <string>
 #include <algorithm>
@@ -71,6 +72,10 @@ LiteralTable::LiteralTable(string filename) {
 
 }
 
+LiteralTable LiteralTable::open(string filename) {
+	return LiteralTable::LiteralTable(filename);
+}
+
 string LiteralTable::getLiteral(int addr) {
 
 	unordered_map<int, Literal>::iterator it = table.find(addr);
@@ -82,6 +87,18 @@ string LiteralTable::getLiteral(int addr) {
 
 	return temp.getLiteral();
 
+}
+
+int LiteralTable::getAddress(string lit) {
+	for (auto curr : table) {
+		if (curr.second.getLiteral() == lit)
+			return curr.second.getAddress();
+	}
+	return -1;
+};
+
+bool LiteralTable::hasLiteralAt(int addr) {
+	return LiteralTable::getLiteral(addr) != "";
 }
 
 // Returns -1 if the there is nothing there
@@ -183,15 +200,21 @@ string LiteralTable::removeWhitespace(string curr) {
 
 void LiteralTable::temPrint() {
 
-	cout << "LiteralTable----" << endl;
+	cout << "----LiteralTable----" << endl;
 	//	ofstream out ("LiteralTable.txt", ios::out | ios::ate | ios::app);
+
+	cout << "address" << "\t";
+	cout << "length" << "\t";
+	cout << "literal" << "\t\t";
+	cout << "name" << endl;
 
 	for (unordered_map<int, Literal>::iterator it = table.begin(); it != table.end(); it++) {
 
-		int temp1 = it->first;
-		Literal temp2 = it->second;
-
-		cout << temp1 << " => " << temp2.getLiteral() << endl;
+		Literal lit = it->second;
+		cout << lit.getAddress() << "\t";
+		cout << lit.getLength() << "\t";
+		cout << lit.getLiteral() << "\t\t";
+		cout << lit.getName() << endl;
 
 	}
 

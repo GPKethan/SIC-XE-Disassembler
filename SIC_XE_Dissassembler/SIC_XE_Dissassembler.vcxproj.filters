@@ -45,6 +45,12 @@
     <ClInclude Include="CtorException.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Dissassemble.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SpecialSymbol.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -57,6 +63,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="LiteralTable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Dissassemble.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Optab.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

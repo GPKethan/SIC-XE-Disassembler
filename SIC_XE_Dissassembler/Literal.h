@@ -3,9 +3,8 @@
 
 #pragma once
 #include <string>
-#include <exception>
 
-#include "CtorException.h"
+//#include "CtorException.h"
 
 using namespace std;
 
@@ -13,7 +12,7 @@ class Literal {
 public:
 	// Ctor
 	Literal() {
-		throw defaultCtorExcept;
+		//throw CtorException();
 	};
 
 	Literal(string name, string literal, int length, int addr) {

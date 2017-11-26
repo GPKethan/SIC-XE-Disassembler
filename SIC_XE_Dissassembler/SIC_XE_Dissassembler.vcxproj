@@ -140,16 +140,20 @@
   <ItemGroup>
     <ClInclude Include="Convert.h" />
     <ClInclude Include="CtorException.h" />
+    <ClInclude Include="Dissassemble.h" />
     <ClInclude Include="Literal.h" />
     <ClInclude Include="LiteralTable.h" />
     <ClInclude Include="Optab.h" />
+    <ClInclude Include="SpecialSymbol.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Symbol.h" />
     <ClInclude Include="SymbolTable.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Dissassemble.cpp" />
     <ClCompile Include="LiteralTable.cpp" />
+    <ClCompile Include="Optab.cpp" />
     <ClCompile Include="SIC_XE_Dissassembler.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

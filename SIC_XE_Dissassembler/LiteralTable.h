@@ -5,10 +5,9 @@
 #include <iostream>
 #include <unordered_map>
 #include <string>
-#include <exception>
 
 #include "Literal.h"
-#include "CtorException.h"
+//#include "CtorException.h"
 
 // Some definitions to make life easier
 #define MAX_NAM 8
@@ -26,12 +25,16 @@ class LiteralTable {
 public:
 	// Constructor
 	LiteralTable() {
-		throw defaultCtorExcept;
+		//throw CtorException();
 	};
 
 	LiteralTable(string filename);
 
+	static LiteralTable open(string filename);
+
 	string getLiteral(int addr);
+	int getAddress(string lit);
+	bool hasLiteralAt(int addr);
 	int getLength(int addr);
 	int size();
 
