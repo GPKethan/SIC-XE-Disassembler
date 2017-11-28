@@ -9,8 +9,10 @@
 #define DEBUG 0
 #define DEBUG_WORD_BYTE 0
 #define DEBUG_RWORD_RBYTE 0
+#define DEBUG_TA 0
+#define DEBUG_FORMAT_2 0
 #define DEBUG_FORMAT_3 0
-#define LISTING_FILE 0
+#define LISTING_FILE 1
 
 using namespace std;
 
@@ -59,16 +61,24 @@ Dissassemble::Dissassemble(string inputPath, string outputPath, string symbolFil
 void Dissassemble::disassemble() {
 
 	//temp
-	//progLength = 4215;		// for practice file
-	progLength = 12036;			//for other file 2F04
+	progLength = 4215;		// for practice file
+	//progLength = 12036;			//for other file 2F04
+
 
 	readHeadRecord();
-	for (int i = 0; i < 2; i++) {
+	for (int i = 0; i < 5; i++) {
 #if DEBUG_RWORD_RBYTE
 		cout << "i:\t" << i << endl;
 #endif // DEBUG_RWORD_RBYTE
 
 		readTextRecord();
+		//temp
+		if(i % 2 == 1) {
+			cout	<< "\t." << endl
+					<< "\t.\tnew subroutine?" << endl
+					<< "\t." << endl;		
+		}
+
 	}
 	
 	//readEndRecord();
@@ -96,11 +106,8 @@ void Dissassemble::readTextRecord() {
 	// We could ignore this part, BUT if something weent wrong in the previous text record 
 	//   the progctr variable *could* also be wrong, so might as well set it to the 
 	//   correct value.
-#if DEBUG_RWORD_RBYTE
-	cout << "currLine\t" << currLine << endl;
-	cout << "setting progctr to:\t" << Convert::hexToDecimal(currLine.substr(TEXT_REC_ADDR_POS, 6)) << endl;
-#endif // DEBUG_RWORD_RBYTE
 	setProgctr(Convert::hexToDecimal(currLine.substr(TEXT_REC_ADDR_POS, 6)));
+
 
 	/* TODO: #2???? */
 
@@ -112,7 +119,7 @@ void Dissassemble::readTextRecord() {
 			cout << "substr(i):\t" << currLine.substr(i) << endl;
 			stopper();
 		#endif
-		
+
 		if (littab.hasLiteralAt(progctr)) {
 			//int poolLength = writeOutLtorg();
 			int poolLength = tempWriteOutLtorg();
@@ -162,12 +169,14 @@ void Dissassemble::readTextRecord() {
 
 			currFormat = isExtended ? 4 : 3;
 
-			if (currFormat == 3)
+			if (currFormat == 3) 
 				formatThree(currOpcode, currOperand, i);
-			else
+			else 
 				formatFour(currOpcode, currOperand, i);
+			
 
 		}
+
 
 		#if DEBUG
 			cout << "currOperand:\t" << currOperand << endl;
@@ -186,10 +195,12 @@ void Dissassemble::readTextRecord() {
 				cout << "dealing with word/byte ass. dir." << endl;
 				stopper();
 			#endif
+
 			wordByte(currSymbol, currOpcode, currOperand, i);
 			break;
 		}
 		
+
 		// multiply currFormat by 2 b/c input is in half-bytes
 		i += currFormat * 2;
 
@@ -214,9 +225,24 @@ void Dissassemble::readEndRecord() {
 
 int Dissassemble::calculateTargetAddress(int displacement, bool isDispNegative, int format) {
 	
+#if DEBUG_TA
+	cout << endl;
+	cout << "-----------------calculateTargetAddress-----------------" << endl;
+	cout << "displacement:\t" << displacement << endl;
+	cout << "isDispNegative:\t" << (isDispNegative ? "true" : "fase") << endl;
+	cout << "isBaseRelative:\t" << (isBaseRelative ? "true" : "fase") << endl;
+	cout << "base:\t" << base << endl;
+	cout << "format:\t" << format << endl;
+#endif
+
 	int modifier = isBaseRelative ? base : progctr + format;
 	if (!isBaseRelative && !isPcRelative)
 		modifier = 0;
+
+#if DEBUG_TA
+	cout << "modifier:\t" << modifier << endl;
+	stopper();
+#endif
 
 	if (isDispNegative)
 		return modifier - displacement;
@@ -243,14 +269,47 @@ void Dissassemble::formatOne(string &opcode) {
 
 void Dissassemble::formatTwo(string &opcode, string &operand, int index) {
 
-	int temp = stoi(string(currLine[index + 2], 1));
+#if DEBUG_FORMAT_2
+	cout << "opcode:\t" << opcode << endl;
+	cout << "operand:\t" << operand << endl;
+	cout << "currLine:" << endl << currLine << endl;
+	for (int i = 0; i <= index; i++) {
+		if (i == index)
+			cout << "^" << endl;
+		else
+			cout << " ";
+	}
+#endif
+
+#if DEBUG_FORMAT_2
+	cout << "newString:\t" << currLine.substr(index + 2, 1) << endl;
+#endif
+	int temp = stoi(currLine.substr(index + 2, 1));
+#if DEBUG_FORMAT_2
+	cout << "temp:\t" << temp << endl;
+#endif
 	string registerOne = registerTable.at(temp);
+#if DEBUG_FORMAT_2
+	cout << "registerOne:\t" << registerOne << endl;
+#endif
 	operand.append(registerOne);
 
-	if (opcode == "clear")
-		return;
+#if DEBUG_FORMAT_2
+	cout << "operand:\t" << operand << endl;
+	cout << "opcode:\t" << opcode << endl;
+#endif
 
-	temp = stoi(string(currLine[index + 3], 1));
+	
+	if (opcode == "clear") {
+
+#if DEBUG_FORMAT_2
+		cout << "ret" << endl;
+#endif
+
+		return;
+	}
+
+	temp = stoi(currLine.substr(index + 3, 1));
 	string registerTwo = registerTable.at(temp);
 	operand.push_back(',');
 	operand.append(registerTwo);
@@ -279,12 +338,14 @@ void Dissassemble::formatThree(string &opcode, string &operand, int index) {
 #endif
 
 	bool isRelativeToSomething = isBaseRelative != isPcRelative;
-	if (symtab.getSymbol(targetAddr) != "" /*&& targetAddr != progctr*/ && isRelativeToSomething)
+	if (symtab.getSymbol(targetAddr) != "" && isRelativeToSomething)
 		operand = symtab.getSymbol(targetAddr);
-	else if (littab.getLiteral(targetAddr) != "" /*&& targetAddr != progctr */&& isRelativeToSomething)
+	else if (littab.getLiteral(targetAddr) != "" && isRelativeToSomething)
 		operand = littab.getLiteral(targetAddr);
 	else
 		operand = to_string(targetAddr);
+
+	base = (opcode == "ldb") ? targetAddr : base;
 
 };
 
@@ -317,18 +378,24 @@ void Dissassemble::formatFour(string &opcode, string &operand, int index) {
 // Needs refactoring
 bool Dissassemble::isWordOrByteDirective(string &symbol, string &mnemonic, string &operand, int &format) {
 
-	//(isImmediate != isIndirect) == isImmediate XOR isIndirect
-	if (Optab::getFormat(mnemonic) == 4 && (isImmediate != isIndirect))
-		return false;
-
-	int disp = getDisplacement(operand);
-	disp = isBaseRelative ? calculateTargetAddress(progctr, (disp < 0), format) : disp;
-
 #if DEBUG_WORD_BYTE
 	cout << "----------isWordOrByteDirective----------" << endl;
+#endif
+
+	//(isImmediate != isIndirect) == isImmediate XOR isIndirect
+	if (isExtended && (isImmediate != isIndirect))
+		return false;
+
+#if DEBUG_WORD_BYTE
 	cout << "currSymbol:\t" << symbol << endl;
-	cout << "mnemonic:\t" << mnemonic << endl;
+	cout << "mnemonic:\t" << mnemonic << endl; 
 	cout << "operand:\t" << operand << endl;
+#endif
+
+	int disp = getDisplacement(operand, format);
+	disp = isBaseRelative && !isOperandNumber(operand) ? calculateTargetAddress(/*progctr*/disp, (disp < 0), format) : disp;
+
+#if DEBUG_WORD_BYTE
 	cout << "disp:\t\t" << disp << endl;
 	cout << "format:\t\t" << format << endl;
 	stopper();
@@ -439,7 +506,6 @@ void Dissassemble::wordByte(string &symbol, string &directive, string &operand, 
 
 void Dissassemble::reswResb() {
 	/*
-	algo?
 	1.	need to peek next line to figure out where it starts -> call nextLineAddr
 		a.	if its the same as progctr then return
 	2.	get the current symbol at the current addr
@@ -455,8 +521,8 @@ void Dissassemble::reswResb() {
 	*/
 
 #if DEBUG_RWORD_RBYTE
-	cout << "(1)progctr:\t" << progctr << endl;
-	stopper();
+	/*cout << "(1)progctr:\t" << progctr << endl;
+	stopper();*/
 #endif // DEBUG_RWORD_RBYTE
 
 	//1
@@ -468,9 +534,9 @@ void Dissassemble::reswResb() {
 	int delta = INT_MIN;
 
 #if DEBUG_RWORD_RBYTE
-	cout << "(2)progctr:\t" << progctr << endl;
-	cout << "nextLineAddr:\t" << nextLineAddr << endl;
-	cout << "progLength:\t" << progLength << endl;
+	cout << "nextLine:\t" << nextLine << endl;
+	cout << "nextLineAddr:\t" << Convert::decimalToHex(nextLineAddr) << endl;
+	cout << "progLength:\t" << Convert::decimalToHex(progLength) << endl;
 	stopper();
 #endif // DEBUG_RWORD_RBYTE
 
@@ -479,7 +545,7 @@ void Dissassemble::reswResb() {
 
 #if DEBUG_RWORD_RBYTE
 		cout << "-------------RESB_RESW-----------" << endl;
-		cout << "(3)progctr:\t" << progctr << endl;
+		cout << "(3)progctr:\t" << Convert::decimalToHex(progctr) << endl;
 		stopper();
 #endif // DEBUG_RWORD_RBYTE
 
@@ -497,7 +563,7 @@ void Dissassemble::reswResb() {
 		nextSymbolAddr = (nextSymbolAddr == INT_MIN) ? progLength : nextSymbolAddr;
 
 #if DEBUG_RWORD_RBYTE
-		cout << "nextSymbolAddr:\t" << nextSymbolAddr << endl;
+		cout << "nextSymbolAddr:\t" << Convert::decimalToHex(nextSymbolAddr) << endl;
 		stopper();
 #endif // DEBUG_RWORD_RBYTE
 
@@ -535,9 +601,9 @@ void Dissassemble::reswResb() {
 		updateProgctr(delta);
 		
 #if DEBUG_RWORD_RBYTE
-		cout << "progctr:\t" << progctr << endl;
-		cout << "progLength:\t" << progLength << endl;
-		cout << "nextLineAddr:\t" << nextLineAddr << endl;
+		cout << "progctr:\t" << Convert::decimalToHex(progctr) << endl;
+		cout << "nextLineAddr:\t" << Convert::decimalToHex(nextLineAddr) << endl;
+		cout << "progLength:\t" << Convert::decimalToHex(progLength) << endl;
 		stopper();
 #endif // DEBUG_RWORD_RBYTE
 
@@ -562,16 +628,44 @@ string Dissassemble::peekNextLine() {
 	return nextLine;
 };
 
-int Dissassemble::getDisplacement(string &operand) {
+int Dissassemble::getDisplacement(string &operand, int &format) {
+	if (format <= 2)
+		return 0;
 	int symAddr = symtab.getAddress(operand);
 	int litAddr = littab.getAddress(operand);
-	int disp = symAddr;
-	if (symAddr == -1 && litAddr == -1)
-		disp = stoi(operand);
-	else if (symAddr == -1)
-		disp = litAddr;		
-	return disp;
+
+#if DEBUG
+	cout << "----------getDisplacement----------" << endl;
+	cout << "symAddr:\t" << symAddr << endl;
+	cout << "litAddr:\t" << litAddr << endl;
+#endif
+	if (symAddr == -1 && litAddr == -1) {
+#if DEBUG
+		cout << "returning:\t" << stoi(operand) << endl;
+		stopper();
+#endif
+		return stoi(operand);
+	}
+	else if (symAddr == -1) {
+#if DEBUG
+		cout << "returning:\t" << litAddr << endl;
+		stopper();
+#endif
+		return litAddr;
+	}
+#if DEBUG
+	cout << "returning:\t" << symAddr << endl;
+	stopper();
+#endif
+	return symAddr;
 };
+
+bool Dissassemble::isOperandNumber(string &operand) {
+	int symAddr = symtab.getAddress(operand);
+	int litAddr = littab.getAddress(operand);
+	return (symAddr == -1 && litAddr == -1) ? true : false;
+};
+
 
 void Dissassemble::writeOut(string symbol, string opcode, string operand, int currFormat) {
 	
@@ -629,7 +723,8 @@ void Dissassemble::tempWriteOut(string symbol, string opcode, string operand, in
 
 	#if LISTING_FILE
 		string temp = to_string(progctr);
-		cout << setw(4) << left << temp;
+		string hexProgctr = Convert::decimalToHex(progctr);
+		cout << setw(8) << left << hexProgctr;
 	#endif
 
 	// Write out symbol column
@@ -661,7 +756,7 @@ void Dissassemble::tempWriteOut(string symbol, string opcode, string operand, in
 		#endif
 		#if LISTING_FILE
 			string temp = Convert::decimalToHex(to_string(progctr));
-			cout << setw(4) << left << "--";
+			cout << setw(8) << left << "--";
 		#endif
 		cout << setw(9) << left << "" << setw(9) << left << "BASE" << setw(12) << left << operand << endl;
 	}
@@ -678,7 +773,7 @@ int Dissassemble::tempWriteOutLtorg() {
 
 	#if LISTING_FILE
 		string temp = Convert::decimalToHex(to_string(progctr));
-		cout << setw(4) << left << temp;
+		cout << setw(8) << left << temp;
 	#endif
 	cout << setw(14) << right << "LTORG" << endl;
 
@@ -687,7 +782,7 @@ int Dissassemble::tempWriteOutLtorg() {
 		poolLength = littab.getLength(progctr);
 		
 		#if LISTING_FILE
-			cout << setw(21) << right << littab.getLiteral(progctr) << endl;
+			cout << setw(25) << right << littab.getLiteral(progctr) << endl;
 		#endif
 
 		updateProgctr(littab.getLength(progctr) / 2);

@@ -92,7 +92,7 @@ public:
 
 	static string decimalToHex(int toConvert) {
 		//For some reason calling binToHex won't work even though this code is LITERALLY THE SAME
-		bitset<MAX_BITSET> bs(toConvert);
+		bitset<64> bs(toConvert);
 		unsigned long tempLong = bs.to_ulong();
 
 		stringstream ss;

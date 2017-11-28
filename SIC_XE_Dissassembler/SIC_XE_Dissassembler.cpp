@@ -12,10 +12,10 @@ using namespace std;
 
 int main() {
 
-	//string symbolFilePath = "C:\\Users\\ethan\\Documents\\School\\11. Spring 2017\\CS 530 - System Software\\Labs\\assignment 2 stuff\\practice symbol file.txt";
-	//string inputFilePath = "C:\\Users\\ethan\\Documents\\School\\11. Spring 2017\\CS 530 - System Software\\Labs\\assignment 2 stuff\\practice object file.txt";
-	string symbolFilePath = "C:\\Users\\ethan\\Documents\\School\\11. Spring 2017\\CS 530 - System Software\\Labs\\assignment 2 stuff\\symbol file.txt";
-	string inputFilePath = "C:\\Users\\ethan\\Documents\\School\\11. Spring 2017\\CS 530 - System Software\\Labs\\assignment 2 stuff\\object file.txt";
+	string symbolFilePath = "C:\\Users\\ethan\\Documents\\School\\11. Spring 2017\\CS 530 - System Software\\Labs\\assignment 2 stuff\\practice sym file (all).txt";
+	string inputFilePath = "C:\\Users\\ethan\\Documents\\School\\11. Spring 2017\\CS 530 - System Software\\Labs\\assignment 2 stuff\\practice obj file (all).txt";
+	/*string symbolFilePath = "C:\\Users\\ethan\\Documents\\School\\11. Spring 2017\\CS 530 - System Software\\Labs\\assignment 2 stuff\\symbol file.txt";
+	string inputFilePath = "C:\\Users\\ethan\\Documents\\School\\11. Spring 2017\\CS 530 - System Software\\Labs\\assignment 2 stuff\\object file.txt";*/
 
 	string outputFilePath = "";
 

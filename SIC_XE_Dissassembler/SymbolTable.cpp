@@ -177,11 +177,11 @@ void SymbolTable::temPrint() {
 
 	cout << "----SymbolTable----" << endl;
 	//	ofstream out ("SymbolTable.sic", ios::out | ios::ate | ios::app);
-
-	for (u_map_iter it = table.begin(); it != table.end(); it++) {
-
-		int value = it->first;
-		SpecialSymbol sym = it->second;
+	vector<SpecialSymbol>::iterator it = tableArray.begin();
+	for (; it != tableArray.end(); it++) {
+	
+		string value = Convert::decimalToHex(it->getValue());
+		SpecialSymbol sym = *it;
 		string abs = "R";
 		if (sym.getIsAbsolute())
 			abs = "A";

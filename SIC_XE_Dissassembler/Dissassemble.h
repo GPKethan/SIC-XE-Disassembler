@@ -129,7 +129,9 @@ private:
 
 	Parameter:	string operand - the current operand we're dealing with
 	*/
-	int getDisplacement(string &operand);
+	int getDisplacement(string &operand, int &format);
+
+	bool isOperandNumber(string &operand);
 
 	void writeOut(string symbol, string opcode, string operand, int currFormat);
 
