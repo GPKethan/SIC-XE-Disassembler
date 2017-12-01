@@ -10,6 +10,8 @@
 #include "SymbolTable.h"
 #include "LiteralTable.h"
 #include "Optab.h"
+#include "Flags.h"
+#include "IOHandler.h"
 
 #define RECORD_ADDR_POS 1
 #define PROG_LTH_OFFSET 14
@@ -27,6 +29,8 @@ public:
 	};
 
 	Dissassemble(string inputPath, string outputPath, string symbolFile);
+
+	~Dissassemble();
 
 	/*
 	The only function in this class that should be called (not including ctor's). 
@@ -121,7 +125,6 @@ private:
 	*/
 	void reswResb();
 
-	// I don't belong here!
 	string peekNextLine();
 
 	/*
@@ -136,36 +139,19 @@ private:
 
 	void writeOut(string symbol, string opcode, string operand, int currFormat);
 
+	//for testing only
+	void tempWriteOut(string symbol, string opcode, string operand, int currFormat);
+
 	int writeOutLtorg();
 	
 	//for testing only
-	void tempWriteOut(string symbol, string opcode, string operand, int currFormat);
 	int tempWriteOutLtorg();
-
-	/*
-	Set the N, I, X, B, P, and E flags
-	
-	Parameter:	int index - the current place in currLine
-	Return:		true if everything went okay, otherwise false
-	*/
-	bool setFlags(int index);
-
-	void resetFlags();
 
 	//----GlobalVars----
 	SymbolTable symtab;
 	LiteralTable littab;
 
-	// These flags could maybe be their own class/struct,
-	//   that way you wouldn't need them to be global variables.
-	// If these flags are taken out then so should the writeOut methods
-	bool isIndirect;			// n
-	bool isImmediate;			// i 
-	bool isSimpleAddressing;	// maybe not necessary
-	bool isIndexAddressing;		// x
-	bool isBaseRelative;		// b
-	bool isPcRelative;			// p
-	bool isExtended;			// maybe not necessary
+	Flags flags;
 
 	int base;					// Value is in base_10
 	//int index;				// Value is in base_10
@@ -175,8 +161,9 @@ private:
 
 	string progName;
 
-	ifstream inFile;
-	ofstream outFile;
+	IOHandler iohandler;
+	/*ifstream inFile;
+	ofstream outFile;*/
 	string currLine;			// Used to hold the current line for input purposes
 
 	static const unordered_map<int, string> registerTable;

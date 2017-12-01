@@ -24,10 +24,11 @@ SymbolTable::SymbolTable(string filename) {
 
 	// Check that the file is actually there
 	if (!file) {
-		cout << "SymbolTable NOT FOUND" << endl;
+		cout << "SYM_FILE DOESN'T EXIST; PANIC!" << endl;
+		file.close();
 		exit(EXIT_SUCCESS);
 	}
-
+	
 	string currLine;
 
 	// need to skip the first 2 lines
@@ -68,6 +69,8 @@ SymbolTable::SymbolTable(string filename) {
 	}
 
 	temPrint();
+
+	file.close();
 
 };
 

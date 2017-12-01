@@ -21,7 +21,8 @@ LiteralTable::LiteralTable(string filename) {
 
 	// Check that the file is actually there
 	if (!file) {
-		cout << "LiteralTable FILE NOT FOUND" << endl;
+		cout << "LIT_FILE FILE NOT FOUND. PANIC!" << endl;
+		file.close();
 		exit(EXIT_SUCCESS);
 	}
 
@@ -69,6 +70,8 @@ LiteralTable::LiteralTable(string filename) {
 	}
 	*/
 	temPrint();
+
+	file.close();
 
 }
 
