@@ -141,6 +141,7 @@
     <ClInclude Include="Convert.h" />
     <ClInclude Include="CtorException.h" />
     <ClInclude Include="Dissassemble.h" />
+    <ClInclude Include="Flags.h" />
     <ClInclude Include="Literal.h" />
     <ClInclude Include="LiteralTable.h" />
     <ClInclude Include="Optab.h" />

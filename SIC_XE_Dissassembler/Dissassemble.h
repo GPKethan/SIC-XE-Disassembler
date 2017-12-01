@@ -11,7 +11,8 @@
 #include "LiteralTable.h"
 #include "Optab.h"
 
-#define TEXT_REC_ADDR_POS 1
+#define RECORD_ADDR_POS 1
+#define PROG_LTH_OFFSET 14
 #define TEXT_REC_START_POS 9
 #define INDIRECT_OFFSET 1
 #define INDEXED_OFFSET 2
@@ -143,9 +144,11 @@ private:
 
 	/*
 	Set the N, I, X, B, P, and E flags
+	
 	Parameter:	int index - the current place in currLine
+	Return:		true if everything went okay, otherwise false
 	*/
-	void setFlags(int index);
+	bool setFlags(int index);
 
 	void resetFlags();
 
@@ -169,6 +172,8 @@ private:
 
 	int progctr;				// Value is in base_10
 	int progLength;
+
+	string progName;
 
 	ifstream inFile;
 	ofstream outFile;

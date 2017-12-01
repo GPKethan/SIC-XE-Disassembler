@@ -1,3 +1,11 @@
-﻿  Optab.cpp
-  SIC_XE_Dissassembler.vcxproj -> C:\Users\ethan\documents\visual studio 2017\Projects\SIC_XE_Dissassembler\Debug\SIC_XE_Dissassembler.exe
-  SIC_XE_Dissassembler.vcxproj -> C:\Users\ethan\documents\visual studio 2017\Projects\SIC_XE_Dissassembler\Debug\SIC_XE_Dissassembler.pdb (Partial PDB)
+﻿  Dissassemble.cpp
+c:\users\ethan\documents\visual studio 2017\projects\sic_xe_dissassembler\sic_xe_dissassembler\convert.h(82): warning C4018: '<': signed/unsigned mismatch
+c:\users\ethan\documents\visual studio 2017\projects\sic_xe_dissassembler\sic_xe_dissassembler\optab.h(32): warning C4091: 'static ': ignored on left of 'Optab' when no variable is declared
+c:\users\ethan\documents\visual studio 2017\projects\sic_xe_dissassembler\sic_xe_dissassembler\dissassemble.cpp(9): warning C4005: 'DEBUG': macro redefinition
+  c:\users\ethan\documents\visual studio 2017\projects\sic_xe_dissassembler\sic_xe_dissassembler\convert.h(13): note: see previous definition of 'DEBUG'
+c:\users\ethan\documents\visual studio 2017\projects\sic_xe_dissassembler\sic_xe_dissassembler\dissassemble.cpp(115): warning C4018: '<': signed/unsigned mismatch
+c:\users\ethan\documents\visual studio 2017\projects\sic_xe_dissassembler\sic_xe_dissassembler\dissassemble.cpp(451): warning C4018: '<': signed/unsigned mismatch
+c:\users\ethan\documents\visual studio 2017\projects\sic_xe_dissassembler\sic_xe_dissassembler\dissassemble.cpp(593): warning C4244: 'initializing': conversion from 'std::streamoff' to 'int', possible loss of data
+c:\users\ethan\documents\visual studio 2017\projects\sic_xe_dissassembler\sic_xe_dissassembler\dissassemble.cpp(786): warning C4018: '>=': signed/unsigned mismatch
+  SIC_XE_Dissassembler.vcxproj -> C:\Users\ethan\Documents\Visual Studio 2017\Projects\SIC_XE_Dissassembler\Debug\SIC_XE_Dissassembler.exe
+  SIC_XE_Dissassembler.vcxproj -> C:\Users\ethan\Documents\Visual Studio 2017\Projects\SIC_XE_Dissassembler\Debug\SIC_XE_Dissassembler.pdb (Partial PDB)
