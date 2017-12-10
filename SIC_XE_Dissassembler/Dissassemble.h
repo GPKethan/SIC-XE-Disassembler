@@ -12,6 +12,7 @@
 #include "Optab.h"
 #include "Flags.h"
 #include "IOHandler.h"
+#include "SIC_LineBuilder.h"
 
 #define RECORD_ADDR_POS 1
 #define PROG_LTH_OFFSET 14
@@ -24,9 +25,7 @@ using namespace std;
 
 class Dissassemble {
 public:
-	Dissassemble() {
-		//throw CtorException();
-	};
+	Dissassemble() { };
 
 	Dissassemble(string inputPath, string outputPath, string symbolFile);
 
@@ -39,6 +38,24 @@ public:
 	void disassemble();
 
 private:
+	//----GlobalVars----
+	SymbolTable symtab;
+	LiteralTable littab;
+
+	Flags flags;
+
+	int base;					// Value is in base_10
+
+	int progctr;				// Value is in base_10
+	int progLength;
+
+	string progName;
+
+	IOHandler iohandler;
+	string currLine;			// Used to hold the current line for input purposes
+
+	static const unordered_map<int, string> registerTable;
+
 	//----Functions----
 	void readHeadRecord();
 	void readTextRecord();
@@ -46,29 +63,20 @@ private:
 
 	void stopper();
 
-	int calculateTargetAddress(int, bool, int);
-	int calculateTargetAddress(string, bool, int);
-
+	int calculateTargetAddress(SIC_LineBuilder &line);
 	/*
 	Updates the Program Counter variable, by adding the offest to it.
 
 	Parameter:	int offset - The format of the current opcode
 	*/
 	void updateProgctr(int offset);
-
-	/*
-	Sets the Program Counter variable to the value specified.
-
-	Parameter:	int currFormat - The format of the current opcode
-	*/
-	void setProgctr(int val);
 	
 	/*
 	Handles cases when the opcode is of format 1.
 
 	Parameter:	string opcode
 	*/
-	void formatOne(string &opcode);
+	void formatOne(SIC_LineBuilder &line);
 
 	/*
 	Handles cases when the opcode is of format 2.
@@ -77,27 +85,17 @@ private:
 				string operand - holds the operand (if there is one)
 				int index - the current place in currLine
 	*/
-	void formatTwo(string &opcode, string &operand, int index);
+	void formatTwo(SIC_LineBuilder &line, int index);
 
 	/*
-	Handles cases when the opcode is of format 3.
+	Normally I would have format 3 and 4 seperated (in fact that's how it originally was), 
+	  BUT after refactoring the two methods were SO similar I decided to just combine them.
+	Handles cases when the opcode is of format 3/4.
 
-	Parameter:	string opcode
-				string operand - holds the operand (if there is one)
-				int index - the current place in currLine
-				int targetAddr - the targetAddress; only here because its needed in other methods
+	Parameter:	line - 
 	*/
-	void formatThree(string &opcode, string &operand, int index);
+	bool formatThreeAndFour(SIC_LineBuilder &line, int index);
 
-	/*
-	Handles cases when the opcode is of format 4.
-
-	Parameter:	string opcode
-				string operand - holds the operand (if there is one)
-				int index - the current place in currLine
-				int targetAddr - the targetAddress; only here because its needed in other methods
-	*/
-	void formatFour(string &opcode, string &operand, int index);
 
 	/*
 	Checks if the current info if "nonsense". If it is, then we know that we're
@@ -108,7 +106,7 @@ private:
 				string operand
 				int format
 	*/
-	bool isWordOrByteDirective(string &symbol, string &mnemonic, string &operand, int &format);
+	bool isWordOrByteDirective(SIC_LineBuilder &line);
 
 	/*
 	Handles the word and byte assembler directives.
@@ -118,55 +116,14 @@ private:
 				string operand
 				int index - the current place in currLine
 	*/
-	void wordByte(string &symbol, string &directive, string &operand, int index);
+	void wordByte(SIC_LineBuilder &line, int index);
 
 	/*
 	Handles the RESW && RESB assembler directives.
 	*/
 	void reswResb();
 
-	string peekNextLine();
-
-	/*
-	Uses the current operand to figure out the displacement.
-	I did this because I didn't want to have to keep track of ANOTHER variable.
-
-	Parameter:	string operand - the current operand we're dealing with
-	*/
-	int getDisplacement(string &operand, int &format);
-
-	bool isOperandNumber(string &operand);
-
-	void writeOut(string symbol, string opcode, string operand, int currFormat);
-
-	//for testing only
-	void tempWriteOut(string symbol, string opcode, string operand, int currFormat);
-
 	int writeOutLtorg();
-	
-	//for testing only
-	int tempWriteOutLtorg();
-
-	//----GlobalVars----
-	SymbolTable symtab;
-	LiteralTable littab;
-
-	Flags flags;
-
-	int base;					// Value is in base_10
-	//int index;				// Value is in base_10
-
-	int progctr;				// Value is in base_10
-	int progLength;
-
-	string progName;
-
-	IOHandler iohandler;
-	/*ifstream inFile;
-	ofstream outFile;*/
-	string currLine;			// Used to hold the current line for input purposes
-
-	static const unordered_map<int, string> registerTable;
 
 };
 

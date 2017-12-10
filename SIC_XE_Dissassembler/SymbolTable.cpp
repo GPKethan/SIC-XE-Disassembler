@@ -121,6 +121,10 @@ bool SymbolTable::getFlag(int addr) {
 
 };
 
+bool SymbolTable::hasSymbolAt(int addr) {
+	return getSymbol(addr) != "";
+};
+
 u_map_iter SymbolTable::begin() {
 	return table.begin();
 };

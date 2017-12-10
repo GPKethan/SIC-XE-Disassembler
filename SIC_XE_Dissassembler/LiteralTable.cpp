@@ -214,7 +214,7 @@ void LiteralTable::temPrint() {
 	for (unordered_map<int, Literal>::iterator it = table.begin(); it != table.end(); it++) {
 
 		Literal lit = it->second;
-		cout << lit.getAddress() << "\t";
+		cout << Convert::decimalToHex(lit.getAddress()) << "\t";
 		cout << lit.getLength() << "\t";
 		cout << lit.getLiteral() << "\t\t";
 		cout << lit.getName() << endl;

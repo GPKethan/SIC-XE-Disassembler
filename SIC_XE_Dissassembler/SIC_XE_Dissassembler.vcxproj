@@ -139,13 +139,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Convert.h" />
-    <ClInclude Include="CtorException.h" />
     <ClInclude Include="Dissassemble.h" />
     <ClInclude Include="Flags.h" />
     <ClInclude Include="Literal.h" />
     <ClInclude Include="LiteralTable.h" />
     <ClInclude Include="Optab.h" />
     <ClInclude Include="IOHandler.h" />
+    <ClInclude Include="SIC_LineBuilder.h" />
     <ClInclude Include="SpecialSymbol.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Symbol.h" />

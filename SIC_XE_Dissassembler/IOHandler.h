@@ -9,15 +9,10 @@
 #include <fstream>
 #include <stdexcept>
 
+#include "SIC_LineBuilder.h"
 #include "Flags.h"
 #include "LiteralTable.h"
 
-#define DEBUG 0
-#define DEBUG_PRINT 0
-#define DEBUG_WORD_BYTE 0
-#define DEBUG_RWORD_RBYTE 0
-#define DEBUG_TA 0
-#define DEBUG_FORMAT_3 0
 #define LISTING_FILE 1
 
 using namespace std;
@@ -48,90 +43,15 @@ public:
 		this->outFile.close();
 	};
 
-	void writeOut(string symbol, string opcode, string operand, int currFormat, Flags &flags) {
+	void writeOut(SIC_LineBuilder &line, Flags &flags) {
 
-		// Write out symbol column
-		outFile << setw(9) << left << symbol;
-
-		transform(opcode.begin(), opcode.end(), opcode.begin(), ::toupper);
-
-		// Write out opcode column
-		if (flags.getIsExtended())
-			outFile << "+" << opcode << setw(6) << right;
-		else
-			outFile << setw(9) << left << opcode;
-
-		// Write out operand column
-		if (flags.getIsImmediate() && !flags.getIsSimpleAddressing() && currFormat >= 3)
-			outFile << "#" << operand << setw(4) << left;
-		else if (flags.getIsIndirect() && !flags.getIsSimpleAddressing() && currFormat >= 3)
-			outFile << "@" << operand << setw(4) << left;
-		else if (flags.getIsIndexAddressing() && currFormat >= 3)
-			outFile << operand << ",X" << setw(4) << left;
-		else
-			outFile << "" << operand << setw(4) << left;
-
-		outFile << endl;
+		writeOutSymbol(line);
+		writeOutOpcode(flags, line);
+		writeOutOperand(flags, line);
 
 		// Handle a special case 
-		if (opcode == "ldb")
-			outFile << setw(9) << left << "" << setw(9) << left << "BASE" << setw(12) << left << operand << endl;
-
-	};
-
-	//for testing only
-	void tempWriteOut(string symbol, string opcode, string operand, int currFormat, Flags &flags, int progctr) {
-
-#if LISTING_FILE
-		if (progctr >= 0) {
-			string temp = to_string(progctr);
-			string hexProgctr = Convert::decimalToHex(progctr);
-			cout << setw(8) << left << hexProgctr;
-		}
-		else {
-			cout << setw(8) << left << "--";
-		}
-#endif
-
-		// Write out symbol column
-		cout << setw(9) << left << symbol;
-
-		transform(opcode.begin(), opcode.end(), opcode.begin(), ::toupper);
-
-		// Write out opcode column
-		if (flags.getIsExtended())
-			cout << "+" << opcode << setw(6) << right;
-		else {
-			cout << setw(9) << left << opcode;
-		}
-
-		// Write out operand column
-		if (flags.getIsImmediate() && !flags.getIsSimpleAddressing() && currFormat >= 3)
-			cout << "#" << operand << setw(4) << left;
-		else if (flags.getIsIndirect() && !flags.getIsSimpleAddressing() && currFormat >= 3)
-			cout << "@" << operand << setw(4) << left;
-		else if (flags.getIsIndexAddressing() && currFormat >= 3)
-			cout << operand << ",X" << setw(4) << left;
-		else
-			cout << "" << operand << setw(4) << left;
-
-		cout << endl;
-
-		// Handle a special case 
-		if (opcode == "ldb") {
-#if DEBUG || DEBUG_WORD_BYTE
-			cout << "*";
-#endif
-#if LISTING_FILE
-			string temp = Convert::decimalToHex(to_string(progctr));
-			cout << setw(8) << left << "--";
-#endif
-			cout << setw(9) << left << "" << setw(9) << left << "BASE" << setw(12) << left << operand << endl;
-		}
-
-#if DEBUG || DEBUG_WORD_BYTE || DEBUG_PRINT
-		cout << "*\n**********************************************************/" << endl;
-#endif
+		if (line.opcode == "ldb")
+			/*outFile*/ cout << setw(9) << left << "" << setw(9) << left << "BASE" << setw(12) << left << line.operand << endl;
 
 	};
 
@@ -140,47 +60,20 @@ public:
 		if (!littab.hasLiteralAt(currAddr))
 			return 0;
 
+		/*outFile*/ cout << setw(14) << right << "LTORG" << endl;
+
 		int poolLength = 0;
 		while (littab.getLiteral(currAddr) != "") {
-			poolLength = littab.getLength(currAddr);
+			poolLength += littab.getLength(currAddr);
 			currAddr += (littab.getLength(currAddr) / 2);
 		}
 
-		outFile << "\t\tLTORG" << endl;
-
 		return poolLength;
 
 	};
 
-	//For testing
-	int tempWriteOutLtorg(LiteralTable &littab, int progctr) {
-
-		if (!littab.hasLiteralAt(progctr))
-			return 0;
-
-#if LISTING_FILE
-		string temp = Convert::decimalToHex(to_string(progctr));
-		cout << setw(8) << left << temp;
-#endif
-		cout << setw(14) << right << "LTORG" << endl;
-
-		int poolLength = 0;
-		while (littab.getLiteral(progctr) != "") {
-			poolLength += littab.getLength(progctr);
-
-#if LISTING_FILE
-			cout << setw(25) << right << littab.getLiteral(progctr) << endl;
-#endif
-
-			progctr += (littab.getLength(progctr) / 2);
-
-		}
-
-		return poolLength;
-
-	};
-
-	//https://stackoverflow.com/questions/10268872/c-fstream-function-that-reads-a-line-without-extracting
+	// "Borrowed" from:
+	// https://stackoverflow.com/questions/10268872/c-fstream-function-that-reads-a-line-without-extracting
 	string peekNextLine() {
 		string nextLine;
 
@@ -203,6 +96,29 @@ public:
 private:
 	ifstream inFile;
 	ofstream outFile;
+
+	void writeOutSymbol(SIC_LineBuilder &line) {
+		/*outFile*/ cout << setw(9) << left << line.symbol;
+	};
+
+	void writeOutOpcode(Flags &flags, SIC_LineBuilder &line) {
+		if (flags.getIsExtended())
+			/*outFile*/ cout << "+" << line.opcode << setw(6) << right;
+		else
+			/*outFile*/ cout << setw(9) << left << line.opcode;
+	};
+
+	void writeOutOperand(Flags & flags, SIC_LineBuilder &line) {
+		if (flags.getIsImmediate() && !flags.getIsSimpleAddressing() && line.format >= 3)
+			/*outFile*/ cout << "#" << line.operand << setw(4) << left;
+		else if (flags.getIsIndirect() && !flags.getIsSimpleAddressing() && line.format >= 3)
+			/*outFile*/ cout << "@" << line.operand << setw(4) << left;
+		else if (flags.getIsIndexAddressing() && line.format >= 3)
+			/*outFile*/ cout << line.operand << ",X" << setw(4) << left;
+		else
+			/*outFile*/ cout << "" << line.operand << setw(4) << left;
+		/*outFile*/ cout << endl;
+	};
 
 };
 #endif

@@ -21,21 +21,17 @@ using namespace std;
 class SymbolTable {
 public:
 	SymbolTable() { };
-
 	SymbolTable(string filename);
-
 	static SymbolTable open(string filename);
 
 	string getSymbol(int addr);
-
-	SpecialSymbol getNextSymbol(int addr);
-
+	bool hasSymbolAt(int addr);
 	int getAddress(string symbol);
-
 	bool getFlag(int addr);
 
+	SpecialSymbol getNextSymbol(int addr);
+	
 	unordered_map<int, SpecialSymbol>::iterator begin();
-
 	unordered_map<int, SpecialSymbol>::iterator end();
 
 	vector<SpecialSymbol> toArray();
@@ -43,15 +39,12 @@ public:
 	void temPrint();
 
 private:
-	bool checkTable(string, ifstream&);
-
-	char peekLine(ifstream&);
-
-	string removeWhitespace(string);
-
 	unordered_map<int, SpecialSymbol> table;
-
 	vector<SpecialSymbol> tableArray;
+
+	bool checkTable(string, ifstream&);
+	char peekLine(ifstream&);
+	string removeWhitespace(string);
 
 };
 

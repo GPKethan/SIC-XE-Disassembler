@@ -11,7 +11,6 @@ class SpecialSymbol : public Symbol {
 public:
 	// This constructor should never be called
 	SpecialSymbol() {
-		//throw CtorException();
 	};
 
 	SpecialSymbol(string symbol, int value, bool isAbsolute, int indexInArray) 

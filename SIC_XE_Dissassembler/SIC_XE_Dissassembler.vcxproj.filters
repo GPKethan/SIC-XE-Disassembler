@@ -42,9 +42,6 @@
     <ClInclude Include="Literal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CtorException.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Dissassemble.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -55,6 +52,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IOHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SIC_LineBuilder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

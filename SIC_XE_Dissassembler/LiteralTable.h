@@ -23,13 +23,8 @@ using namespace std;
 
 class LiteralTable {
 public:
-	// Constructor
-	LiteralTable() {
-		//throw CtorException();
-	};
-
+	LiteralTable() { };
 	LiteralTable(string filename);
-
 	static LiteralTable open(string filename);
 
 	string getLiteral(int addr);
