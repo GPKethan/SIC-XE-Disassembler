@@ -106,7 +106,7 @@ private:
 				string operand
 				int format
 	*/
-	bool isWordOrByteDirective(SIC_LineBuilder &line);
+	bool isWordDirective(SIC_LineBuilder &line);
 
 	/*
 	Handles the word and byte assembler directives.
@@ -122,8 +122,6 @@ private:
 	Handles the RESW && RESB assembler directives.
 	*/
 	void reswResb();
-
-	int writeOutLtorg();
 
 };
 

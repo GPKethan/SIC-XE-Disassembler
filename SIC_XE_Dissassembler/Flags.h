@@ -43,6 +43,7 @@ public:
 
 		if (index + INDIRECT_OFFSET >= currLine.size() || index + INDEXED_OFFSET >= currLine.size())
 			return false;
+			
 
 		// the iNdirect and Immediate flags
 		string nAndI = Convert::hexToBinary(currLine[index + INDIRECT_OFFSET]);

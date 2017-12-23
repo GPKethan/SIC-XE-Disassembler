@@ -35,14 +35,6 @@ public:
 		this->symbol = symbol;
 	};
 
-	SIC_LineBuilder(string mnemonic, string opcode, int format, string operand, string symbol) : SIC_LineBuilder() {
-		this->mnemonic = mnemonic;
-		this->opcode = opcode;
-		this->format = format;
-		this->operand = operand;
-		this->symbol = symbol;	
-	};
-
 	SIC_LineBuilder(SymbolTable &symtab, string toExtract, int startPos, int addr) : SIC_LineBuilder() {
 		this->mnemonic = Optab::getMnemonic(toExtract[startPos], toExtract[startPos + 1]);
 		this->opcode = Optab::getOpcode(mnemonic);
@@ -50,17 +42,21 @@ public:
 		this->symbol = symtab.getSymbol(addr);
 	};
 
-	/*
-	  Basically a switchboard operator telling the parameters where to go depending on the format.
+	void setDisplacement(string &currLine, int index) {
 
-	  @param currLine:		--
-	  @param posInCurrLine:	--
-	*/
-	void setDisplacement(string &currLine, int posInCurrLine) {
-		if (this->format == 3)
-			setDisp(currLine, posInCurrLine);
-		else
-			setAddress(currLine, posInCurrLine);
+		if (this->format == 4) {
+			displacement = Convert::hexToDecimal(currLine.substr(index + DISPLACEMENT_OFFSET, 5));
+			return;
+		}
+
+		string hexDisp = currLine.substr(index + DISPLACEMENT_OFFSET, 3);
+		if (hexDisp[0] != 'F')
+			displacement = Convert::hexToDecimal(hexDisp);
+		else {
+			displacement = Convert::negativeHexToPositiveDecimal(hexDisp);
+			isDispNegative = true;
+		}
+
 	};
 
 	void setOperand(SymbolTable &symtab, LiteralTable &littab, Flags &flags, int addr) {
@@ -79,19 +75,6 @@ public:
 	}
 
 private:
-	void setAddress(string &currLine, int posInCurrLine) {
-		displacement = Convert::hexToDecimal(currLine.substr(posInCurrLine + DISPLACEMENT_OFFSET, 5));
-	};
-
-	void setDisp(string &currLine, int posInCurrLine) {
-		string hexDisp = currLine.substr(posInCurrLine + DISPLACEMENT_OFFSET, 3);
-		if (hexDisp[0] != 'F')
-			displacement = Convert::hexToDecimal(hexDisp);
-		else {
-			displacement = Convert::negativeHexToPositiveDecimal(hexDisp);
-			isDispNegative = true;
-		}
-	}
-
+	
 };
 #endif

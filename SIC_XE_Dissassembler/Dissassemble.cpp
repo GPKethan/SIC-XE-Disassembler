@@ -87,15 +87,17 @@ void Dissassemble::readTextRecord() {
 	if (currLine[0] == 'M' || currLine[0] == 'E')
 		return;
 
-	// We could ignore this part, BUT if something weent wrong in the previous text record 
+	// We could ignore this part, BUT if something went wrong in the previous text record 
 	//   the progctr variable *could* also be wrong, so might as well set it to the 
 	//   correct value. Better safe than sorry
 	progctr = Convert::hexToDecimal(currLine.substr(RECORD_ADDR_POS, 6));
 
 	for (int i = TEXT_REC_START_POS; i < currLine.size();) {
 
+		// refactor???????
 		if (littab.hasLiteralAt(progctr)) {
-			int poolLength = writeOutLtorg();
+			int poolLength = iohandler.writeOutLtorg(littab, progctr);
+			updateProgctr(poolLength / 2);
 			i += poolLength;
 			continue;
 		}
@@ -110,7 +112,7 @@ void Dissassemble::readTextRecord() {
 		
 		// REFACTOR THIS
 		// If the flags weren't set then we know something fucky is going on
-		if (!flagSet || isWordOrByteDirective(line)) {
+		if (!flagSet || isWordDirective(line)) {
 			wordByte(line, i);
 			break;
 		}
@@ -196,11 +198,16 @@ bool Dissassemble::formatThreeAndFour(SIC_LineBuilder &line, int index) {
 
 };
 
-// Needs refactoring
-bool Dissassemble::isWordOrByteDirective(SIC_LineBuilder &line) {
+/*
+	Check if the current state makes sense (i.e. the variables that are set are valid). 
+	  If it doesn't then we know that its probably a word or byte directive.
+	Note: I realize I could simplify this by directly putting the conditionals in the if 
+	  statements BUT I chose not to because naming the bool values makes the program easier 
+	  to read/understand.
+*/
+bool Dissassemble::isWordDirective(SIC_LineBuilder &line) {
 
-	//(isImmediate != isIndirect) == isImmediate XOR isIndirect
-	// if format4 && immediate XOR indirect is set -> return false
+	// if format4 && immediate OR indirect is set -> return false
 	if (flags.getIsExtended() && (flags.getIsImmediate() || flags.getIsIndirect()))
 		return false;
 
@@ -213,24 +220,26 @@ bool Dissassemble::isWordOrByteDirective(SIC_LineBuilder &line) {
 	if (flags.getIsBaseRelative() && targetAddr < 0)
 		return true;
 
-	if (Optab::getFormat(line.mnemonic) != line.format && Optab::getFormat(line.mnemonic) != 4)
+	bool formatsDoNotMatch = Optab::getFormat(line.mnemonic) != line.format && 
+							 Optab::getFormat(line.mnemonic) != 4;
+	if (formatsDoNotMatch)
 		return true;
 
 	if (line.format <= 2)
 		return false;
 
-	// unless its format 1 or 2, one or both of the immediate/indirect flags has to be set
-	if (!flags.getIsImmediate() && !flags.getIsIndirect())
+	// unless its format 1 or 2, one or both of the immediate/indirect flags have to be set
+	bool isImmediateOrIndirect = !flags.getIsImmediate() && !flags.getIsIndirect();
+	if (isImmediateOrIndirect)
 		return true;
 
 	if (flags.getIsBaseRelative() && flags.getIsPcRelative() && !flags.getIsImmediate())
 		return true;
-
 	if (!flags.getIsBaseRelative() && !flags.getIsPcRelative() && !flags.getIsImmediate())
 		return true;
 
-	// check if disp is out of range
-	if (targetAddr < 0 || targetAddr > progLength)
+	bool isOutOfRange = targetAddr < 0 || targetAddr > progLength;
+	if (isOutOfRange)
 		return true;
 
 	return false;
@@ -253,7 +262,6 @@ void Dissassemble::wordByte(SIC_LineBuilder &line, int index) {
 		int nextSymAddr = symtab.getNextSymbol(progctr).getValue();
 		nextSymAddr = (nextSymAddr == progctr || nextSymAddr == INT_MIN) ? progLength : nextSymAddr;
 
-		// Subtract that val from the current addr - this is the number of bytes to be read in
 		int delta = nextSymAddr - progctr;
 		int lthToReadIn = delta * 2;
 
@@ -282,12 +290,11 @@ void Dissassemble::reswResb() {
 
 		SIC_LineBuilder line;
 
-		line.symbol = symtab.getSymbol(progctr);
 		int nextSymbolAddr = symtab.getNextSymbol(progctr).getValue();
 		nextSymbolAddr = (nextSymbolAddr == INT_MIN) ? progLength : nextSymbolAddr;
-
 		delta = nextSymbolAddr - progctr;
-
+		
+		line.symbol = symtab.getSymbol(progctr);
 		line.opcode = "RESB";
 		line.operand = to_string(delta);
 		if (symtab.getFlag(progctr))
@@ -302,12 +309,6 @@ void Dissassemble::reswResb() {
 
 	}
 
-};
-
-int Dissassemble::writeOutLtorg() {
-	int poolLength = iohandler.writeOutLtorg(littab, progctr);
-	updateProgctr(poolLength / 2);
-	return poolLength;
 };
 
 void Dissassemble::stopper() {
