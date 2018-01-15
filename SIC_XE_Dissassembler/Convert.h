@@ -9,7 +9,7 @@
 #include <sstream>
 #include <string>
 
-#define MAX_BITSET 4	// was 4
+#define MAX_BITSET 4
 #define DEBUG 1
 
 using namespace std;
@@ -74,7 +74,6 @@ public:
 
 	static int negativeHexToPositiveDecimal(string toConvert) {
 		
-		//const int bsSize = toConvert.size() * 4;
 		bitset<12> bs(hexToDecimal(toConvert));
 		string bin = bs.to_string();
 
@@ -91,7 +90,8 @@ public:
 	};
 
 	static string decimalToHex(int toConvert) {
-		//For some reason calling binToHex won't work even though this code is LITERALLY THE SAME
+		// For some reason calling binToHex won't work even though 
+		//  this code is LITERALLY THE SAME
 		bitset<64> bs(toConvert);
 		unsigned long tempLong = bs.to_ulong();
 

@@ -11,33 +11,18 @@ using namespace std;
 class Literal {
 public:
 	// Ctor
-	Literal() {
-		//throw CtorException();
-	};
+	Literal();
 
-	Literal(string name, string literal, int length, int addr) {
-		this->name = name;
-		this->literal = literal;
-		this->length = length;
-		this->addr = addr;
-	};
+	Literal(string name, string literal, int length, int addr);
 
 	// Getters
-	string getName() {
-		return this->name;
-	};
+	string getName();
 
-	string getLiteral() {
-		return this->literal;
-	};
+	string getLiteral();
 
-	int getLength() {
-		return this->length;
-	};
+	int getLength();
 
-	int getAddress() {
-		return this->addr;
-	};
+	int getAddress();
 
 
 private:

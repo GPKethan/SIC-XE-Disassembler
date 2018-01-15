@@ -15,23 +15,11 @@ using namespace std;
 
 class Flags {
 public:
-	Flags() {
-		isIndirect = false;
-		isImmediate = false;
-		isSimpleAddressing = false;
-		isIndexAddressing = false;
-		isBaseRelative = false;
-		isPcRelative = false;
-		isExtended = false;
-	};
+	Flags();
 
-	Flags(string currLine) {
-		setFlags(currLine, 0);
-	};
+	Flags(string currLine);
 
-	static Flags instantiate() {
-		return Flags();
-	};
+	static Flags instantiate();
 
 	/*
 	Set the N, I, X, B, P, and E flags
@@ -39,71 +27,26 @@ public:
 	Parameter:	int index - the current place in currLine
 	Return:		true if everything went okay, otherwise false
 	*/
-	bool setFlags(string &currLine, int index) {
+	bool setFlags(string &currLine, int index);
 
-		if (index + INDIRECT_OFFSET >= currLine.size() || index + INDEXED_OFFSET >= currLine.size())
-			return false;
-			
+	/*
+	RESet the N, I, X, B, P, and E flags
+	*/
+	void resetFlags();
 
-		// the iNdirect and Immediate flags
-		string nAndI = Convert::hexToBinary(currLine[index + INDIRECT_OFFSET]);
-		isIndirect = (nAndI[2] == '1') ? true : false;
-		isImmediate = (nAndI[3] == '1') ? true : false;
-		isSimpleAddressing = isIndirect && isImmediate;
+	bool getIsIndirect();
 
-		// the indeXed, Base relative, Pc relative, and Extended flags
-		string xBPE = Convert::hexToBinary(currLine[index + INDEXED_OFFSET]);
-		isIndexAddressing = (xBPE[0] == '1') ? true : false;
-		isBaseRelative = (xBPE[1] == '1') ? true : false;
-		isPcRelative = (xBPE[2] == '1') ? true : false;
-		isExtended = (xBPE[3] == '1') ? true : false;
+	bool getIsImmediate();
 
-		return true;
+	bool getIsSimpleAddressing();
 
-	};
+	bool getIsIndexAddressing();
 
-	void resetFlags() {
+	bool getIsBaseRelative();
 
-		// the iNdirect and Immediate flags
-		isIndirect = false;
-		isImmediate = false;
-		isSimpleAddressing = true;
+	bool getIsPcRelative();
 
-		// the indeXed, Base relative, Pc relative, and Extended flags
-		isIndexAddressing = false;
-		isBaseRelative = false;
-		isPcRelative = false;
-		isExtended = false;
-
-	};
-
-	bool getIsIndirect() {
-		return isIndirect;
-	};
-
-	bool getIsImmediate() {
-		return isImmediate;
-	};
-
-	bool getIsSimpleAddressing() {
-		return isSimpleAddressing;
-	};
-
-	bool getIsIndexAddressing() {
-		return isIndexAddressing;
-	};
-
-	bool getIsBaseRelative() {
-		return isBaseRelative;
-	};
-
-	bool getIsPcRelative() {
-		return isPcRelative;
-	};
-
-	bool getIsExtended() {
-		return isExtended;
-	};
+	bool getIsExtended();
 
 private:
 	bool isIndirect;			// n

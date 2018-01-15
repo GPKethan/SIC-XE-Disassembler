@@ -7,7 +7,6 @@
 #include <string>
 
 #include "Literal.h"
-//#include "CtorException.h"
 
 // Some definitions to make life easier
 #define MAX_NAM 8
@@ -25,12 +24,37 @@ class LiteralTable {
 public:
 	LiteralTable() { };
 	LiteralTable(string filename);
+	
+	/*
+	Returns a LiteralTable Object when given a filename
+	*/
 	static LiteralTable open(string filename);
 
+	/*
+	@param	addr - the address where a literal might be stored at
+	@return the literal located at that address, or an empty string 
+			 if one doesn't exist
+	*/
 	string getLiteral(int addr);
+
+	/*
+	@param	lit - the literal 
+	@return the associated adderss of the literal
+	*/
 	int getAddress(string lit);
+
+	/*
+	@param	addr - the address where a literal might be stored at
+	@return true if there is at the specified address, otherwise false
+	*/
 	bool hasLiteralAt(int addr);
+
+	/*
+	@param	addr - the address where a literal might be stored at
+	@return the length of the literal, and -1 if there is no literal at that address
+	*/
 	int getLength(int addr);
+
 	int size();
 
 private:

@@ -49,26 +49,7 @@ LiteralTable::LiteralTable(string filename) {
 	getline(file, currLine);
 
 	fillTable(file);
-	/*
-	while (!file.eof()) {
-		getline(file, currLine);
 
-		// if there's a comment or newline skip it!
-		if (currLine.size() == 0 || currLine[0] == '.')
-			continue;
-
-		string name = removeWhitespace(currLine.substr(NAM_POS, MAX_NAM));
-		string literal = removeWhitespace(currLine.substr(LIT_POS, MAX_LIT));
-		int length = Convert::stringToInt(currLine.substr(LTH_POS, MAX_LTH)); \
-		int addr = Convert::hexToDecimal(removeWhitespace(currLine.substr(ADR_POS, MAX_ADR)));
-
-		string tempLth = currLine.substr(LTH_POS, MAX_LTH);
-
-		Literal lit(name, literal, length, addr);
-		table[addr] = lit;
-
-	}
-	*/
 	temPrint();
 
 	file.close();
@@ -104,7 +85,6 @@ bool LiteralTable::hasLiteralAt(int addr) {
 	return LiteralTable::getLiteral(addr) != "";
 }
 
-// Returns -1 if the there is nothing there
 int LiteralTable::getLength(int addr) {
 
 	unordered_map<int, Literal>::iterator it = table.find(addr);
@@ -148,13 +128,13 @@ void LiteralTable::fillTable(ifstream &file) {
 
 }
 
-// If the first char of input is 'S' then that means we're looking at
-//  "Symbol  Value   Flags:"
-//  Which means its the symtab, otherwise its the LiteralTable
+/* 
+If the first char of input is 'S' then that means we're looking at
+  "Symbol  Value   Flags:"
+  Which means its the symtab, otherwise its the LiteralTable
+*/
 bool LiteralTable::checkTable(string currLine, ifstream& file) {
 
-	// If we're supposed to account for weird symtab input this will need to be fixed; specifically
-	//  the last part after ||
 	if (currLine.substr(0, 4) == "Name" && peekLine(file) == '-')
 		return false;
 
@@ -162,7 +142,7 @@ bool LiteralTable::checkTable(string currLine, ifstream& file) {
 
 }
 
-// return the first char of the next line
+// Returns the first char of the next line
 char LiteralTable::peekLine(ifstream& file) {
 	int len = file.tellg();
 	string line;

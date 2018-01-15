@@ -6,15 +6,12 @@
 #include <unordered_map>
 
 #include "Convert.h"
-//#include "CtorException.h"
 
 using namespace std;
 
 static class Optab {
 public:
-	Optab() {
-		//throw CtorException();
-	};
+	Optab() { };
 
 	static string getOpcode(string key);
 
@@ -24,7 +21,8 @@ public:
 	static int getFormat(string key);
 
 private:
-	/* How to initialize a static const:
+	/* 
+	How to initialize a static const:
 	https://stackoverflow.com/questions/11367141/how-to-declare-and-initialize-a-static-const-array-as-a-class-member
 	*/
 	const static unordered_map<string, pair<string, int>> table;

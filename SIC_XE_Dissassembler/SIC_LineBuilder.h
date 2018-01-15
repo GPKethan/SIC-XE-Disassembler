@@ -2,9 +2,14 @@
 #define SIC_LINEBUILDER_H_
 
 #pragma once
+
 #include <iostream>
 #include <string>
 
+#include "SymbolTable.h"
+#include "Optab.h"
+#include "LiteralTable.h"
+#include "Flags.h"
 #include "Convert.h"
 
 using namespace std;
@@ -19,62 +24,40 @@ public:
 	int displacement;
 	bool isDispNegative;
 
-	SIC_LineBuilder() {
-		this->mnemonic = "";
-		this->opcode = "";
-		this->format = -1;
-		this->operand = "";
-		this->symbol = symbol;
-		this->displacement = -1;
-		this->isDispNegative = false;
-	};
+	SIC_LineBuilder();
 
-	SIC_LineBuilder(string symbol, string opcode, string operand) : SIC_LineBuilder() {
-		this->opcode = opcode;
-		this->operand = operand;
-		this->symbol = symbol;
-	};
+	SIC_LineBuilder(string symbol, string opcode, string operand);
 
-	SIC_LineBuilder(SymbolTable &symtab, string toExtract, int startPos, int addr) : SIC_LineBuilder() {
-		this->mnemonic = Optab::getMnemonic(toExtract[startPos], toExtract[startPos + 1]);
-		this->opcode = Optab::getOpcode(mnemonic);
-		this->format = Optab::getFormat(mnemonic);
-		this->symbol = symtab.getSymbol(addr);
-	};
+	SIC_LineBuilder(SymbolTable &symtab, string toExtract, int startPos, int addr);
 
-	void setDisplacement(string &currLine, int index) {
+	/*
+	Does pretty much what the name implies.
 
-		if (this->format == 4) {
-			displacement = Convert::hexToDecimal(currLine.substr(index + DISPLACEMENT_OFFSET, 5));
-			return;
-		}
+	Parameters:	string &currLine - the most recent Text Record
+				int index - the position to start reading from currLine
+	*/
+	void setDisplacement(string &currLine, int index);
 
-		string hexDisp = currLine.substr(index + DISPLACEMENT_OFFSET, 3);
-		if (hexDisp[0] != 'F')
-			displacement = Convert::hexToDecimal(hexDisp);
-		else {
-			displacement = Convert::negativeHexToPositiveDecimal(hexDisp);
-			isDispNegative = true;
-		}
+	/*
+	Does pretty much what the name implies.
 
-	};
+	Parameters:	SymbolTable &symtab		- the SymbolTable
+				LiteralTable &littab	- the LiteralTable
+				Flags &flags			- a Flags object so that we can make sure we're doing the correct thing
+				int addr				- the current address we're at
+	*/
+	void setOperand(SymbolTable &symtab, LiteralTable &littab, Flags &flags, int addr);
 
-	void setOperand(SymbolTable &symtab, LiteralTable &littab, Flags &flags, int addr) {
+	/* 
+	   I HAVE LITERALLY NO IDEA IF THIS BELONGS HERE, BUT IT MAKES SENSE TO PUT IT HERE 
+	   RIGHT NOW SO THATS WHAT IM GOING TO DO
 
-		bool isRelativeToSomething = true;
-		if (this->format == 3)
-			isRelativeToSomething = flags.getIsBaseRelative() != flags.getIsPcRelative();
+	   Parameters: SymbolTable &symtab
+					int &delta
+					int progctr
+					int progLength
+	*/
+	void buildReswLine(SymbolTable &symtab, int &delta, int progctr, int progLength);
 
-		if (symtab.hasSymbolAt(addr) && isRelativeToSomething)
-			this->operand = symtab.getSymbol(addr);
-		else if (littab.hasLiteralAt(addr) && isRelativeToSomething)
-			this->operand = littab.getLiteral(addr);
-		else
-			this->operand = to_string(addr);
-
-	}
-
-private:
-	
 };
 #endif

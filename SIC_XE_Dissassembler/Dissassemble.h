@@ -61,9 +61,14 @@ private:
 	void readTextRecord();
 	void readEndRecord();
 
-	void stopper();
+	/*
+	Calculates what the line's operand is.
 
+	Parameter:	SIC_LineBuilder &line - the line we're creating
+	Return:		The target address
+	*/
 	int calculateTargetAddress(SIC_LineBuilder &line);
+
 	/*
 	Updates the Program Counter variable, by adding the offest to it.
 
@@ -72,49 +77,60 @@ private:
 	void updateProgctr(int offset);
 	
 	/*
+	PLEASE NOTE: I'm positive this method should be in LineBuilder, HOWEVER if I put 
+				 this method in LineBuilder then I have to put formatThreeAndFour() 
+				 in there as well. The problem with this is that formatThreeAndFour() 
+				 is dependent on many functions and variables that are only in this class. 
+				 SO, I can't move it anywhere until I figure something else out
+
 	Handles cases when the opcode is of format 1.
 
-	Parameter:	string opcode
+	Parameter:	SIC_LineBuilder &line - the line we're creating
 	*/
 	void formatOne(SIC_LineBuilder &line);
 
 	/*
+	PLEASE NOTE: I'm positive this method should be in LineBuilder, HOWEVER if I put 
+				 this method in LineBuilder then I have to put formatThreeAndFour() 
+				 in there as well. The problem with this is that formatThreeAndFour() 
+				 is dependent on many functions and variables that are only in this class. 
+				 SO, I can't move it anywhere until I figure something else out
+
 	Handles cases when the opcode is of format 2.
 
-	Parameter:	string opcode
-				string operand - holds the operand (if there is one)
-				int index - the current place in currLine
+	Parameter:	SIC_LineBuilder &line - the line we're creating
+				int index - the position we're at in currLine
 	*/
 	void formatTwo(SIC_LineBuilder &line, int index);
 
 	/*
-	Normally I would have format 3 and 4 seperated (in fact that's how it originally was), 
-	  BUT after refactoring the two methods were SO similar I decided to just combine them.
+	PLEASE NOTE: I'm positive this method should be in LineBuilder, HOWEVER if I put 
+				 this method in LineBuilder then I have to put formatThreeAndFour() 
+				 in there as well. The problem with this is that formatThreeAndFour() 
+				 is dependent on many functions and variables that are only in this class. 
+				 SO, I can't move it anywhere until I figure something else out
+	
 	Handles cases when the opcode is of format 3/4.
 
-	Parameter:	line - 
+	Parameter:	SIC_LineBuilder &line - the line we're creating
+				int index - the position we're at in currLine
+	Return:		false if the flag was NOT set, otherwise true
 	*/
 	bool formatThreeAndFour(SIC_LineBuilder &line, int index);
-
 
 	/*
 	Checks if the current info if "nonsense". If it is, then we know that we're
 	  dealing with a WORD or BYTE Directive.
 
-	Parameter:	string symbol
-				string mnemonic - the current mnemonic (the hex one)
-				string operand
-				int format
+	Parameter:	SIC_LineBuilder &line - the line we're creating
 	*/
 	bool isWordDirective(SIC_LineBuilder &line);
 
 	/*
 	Handles the word and byte assembler directives.
 
-	Parameter:	string symbol
-				string directive - either WORD or BYTE
-				string operand
-				int index - the current place in currLine
+	Parameter:	SIC_LineBuilder &line - the line we're creating
+				int index - the position we're at in currLine
 	*/
 	void wordByte(SIC_LineBuilder &line, int index);
 
@@ -122,6 +138,9 @@ private:
 	Handles the RESW && RESB assembler directives.
 	*/
 	void reswResb();
+
+	// Temp thing for stuff
+	void stopper();
 
 };
 

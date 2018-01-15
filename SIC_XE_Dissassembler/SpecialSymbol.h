@@ -10,8 +10,7 @@ using namespace std;
 class SpecialSymbol : public Symbol {
 public:
 	// This constructor should never be called
-	SpecialSymbol() {
-	};
+	SpecialSymbol() { };
 
 	SpecialSymbol(string symbol, int value, bool isAbsolute, int indexInArray) 
 	: Symbol(symbol, value, isAbsolute) {

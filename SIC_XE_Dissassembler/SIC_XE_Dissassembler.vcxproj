@@ -154,8 +154,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Dissassemble.cpp" />
+    <ClCompile Include="Flags.cpp" />
+    <ClCompile Include="IOHandler.cpp" />
+    <ClCompile Include="Literal.cpp" />
     <ClCompile Include="LiteralTable.cpp" />
     <ClCompile Include="Optab.cpp" />
+    <ClCompile Include="SIC_LineBuilder.cpp" />
     <ClCompile Include="SIC_XE_Dissassembler.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -163,6 +167,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Symbol.cpp" />
     <ClCompile Include="SymbolTable.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

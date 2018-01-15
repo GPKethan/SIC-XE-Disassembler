@@ -3,35 +3,22 @@
 
 #pragma once
 #include <string>
-//#include "CtorException.h"
 
 using namespace std;
 
 class Symbol {
 public:
 	// This constructor should never be called
-	Symbol() {
-		//throw CtorException();
-	};
+	Symbol();
 
-	Symbol(string symbol, int value, bool isAbsolute) {
-		this->symbol = symbol;
-		this->value = value;
-		this->isAbsolute = isAbsolute;
-	};
+	Symbol(string symbol, int value, bool isAbsolute);
 
 	// Getters
-	string getSymbol() {
-		return this->symbol;
-	};
+	string getSymbol();
 
-	int getValue() {
-		return this->value;
-	};
+	int getValue();
 
-	bool getIsAbsolute() {
-		return this->isAbsolute;
-	};
+	bool getIsAbsolute();
 
 protected:
 	// Variables
