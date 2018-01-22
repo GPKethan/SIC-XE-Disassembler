@@ -68,7 +68,7 @@ SymbolTable::SymbolTable(string filename) {
 
 	}
 
-	temPrint();
+	//temPrint();
 
 	file.close();
 

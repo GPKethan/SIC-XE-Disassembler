@@ -14,12 +14,15 @@
 #include "IOHandler.h"
 #include "SIC_LineBuilder.h"
 
-#define RECORD_ADDR_POS 1
-#define PROG_LTH_OFFSET 14
-#define TEXT_REC_START_POS 9
-#define INDIRECT_OFFSET 1
-#define INDEXED_OFFSET 2
+#define RECORD_ADDR_POS		1
+#define PROG_LTH_OFFSET		14
+#define TEXT_REC_START_POS	9
+#define INDIRECT_OFFSET		1
+#define INDEXED_OFFSET		2
 #define DISPLACEMENT_OFFSET 3
+#define REC_TYPE_FLAG_POS	0
+#define MODIFICATION		'M'
+#define END					'E'
 
 using namespace std;
 

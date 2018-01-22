@@ -13,45 +13,51 @@ using namespace std;
 int main() {
 
 	
-	
-	string symbolFilePath = "C:\\Users\\ethan\\Documents\\School\\11. Spring 2017\\CS 530 - System Software\\Labs\\assignment 2 stuff\\practice sym file (all).txt";
-	string inputFilePath = "C:\\Users\\ethan\\Documents\\School\\11. Spring 2017\\CS 530 - System Software\\Labs\\assignment 2 stuff\\practice obj file (all).txt";
-	
-	
-	/*
-	string symbolFilePath = "C:\\Users\\ethan\\Documents\\School\\11. Spring 2017\\CS 530 - System Software\\Labs\\assignment 2 stuff\\fack SYM.txt";
-	string inputFilePath = "C:\\Users\\ethan\\Documents\\School\\11. Spring 2017\\CS 530 - System Software\\Labs\\assignment 2 stuff\\fack OBJ.txt";
-	*/
 
 	
-	/*string symbolFilePath = "C:\\Users\\ethan\\Documents\\School\\11. Spring 2017\\CS 530 - System Software\\Labs\\assignment 2 stuff\\symbol file.txt";
-	string inputFilePath = "C:\\Users\\ethan\\Documents\\School\\11. Spring 2017\\CS 530 - System Software\\Labs\\assignment 2 stuff\\object file.txt";*/
+	
+	/*string symbolFilePath = "C:\\Users\\ethan\\Documents\\School\\11. Spring 2017\\CS 530 - System Software\\Labs\\assignment 2 stuff\\practice sym file (all).txt";
+	string inputFilePath = "C:\\Users\\ethan\\Documents\\School\\11. Spring 2017\\CS 530 - System Software\\Labs\\assignment 2 stuff\\practice obj file (all).txt";*/
+	
+	
+	
+	/*string symbolFilePath = "C:\\Users\\ethan\\Documents\\School\\11. Spring 2017\\CS 530 - System Software\\Labs\\assignment 2 stuff\\fack SYM.txt";
+	string inputFilePath = "C:\\Users\\ethan\\Documents\\School\\11. Spring 2017\\CS 530 - System Software\\Labs\\assignment 2 stuff\\fack OBJ.txt";*/
 	
 
-	/*
-	string symbolFilePath = "C:\\Users\\ethan\\Documents\\School\\11. Spring 2017\\CS 530 - System Software\\Labs\\assignment 2 stuff\\sym file (more testing).txt";
-	string inputFilePath = "C:\\Users\\ethan\\Documents\\School\\11. Spring 2017\\CS 530 - System Software\\Labs\\assignment 2 stuff\\obj file (more testing).txt";
-	*/
+	
+	string symbolFilePath = "C:\\Users\\ethan\\Documents\\School\\11. Spring 2017\\CS 530 - System Software\\Labs\\assignment 2 stuff\\symbol file.txt";
+	string inputFilePath = "C:\\Users\\ethan\\Documents\\School\\11. Spring 2017\\CS 530 - System Software\\Labs\\assignment 2 stuff\\object file.txt";
+	
+
+	
+	/*string symbolFilePath = "C:\\Users\\ethan\\Documents\\School\\11. Spring 2017\\CS 530 - System Software\\Labs\\assignment 2 stuff\\sym file (more testing).txt";
+	string inputFilePath = "C:\\Users\\ethan\\Documents\\School\\11. Spring 2017\\CS 530 - System Software\\Labs\\assignment 2 stuff\\obj file (more testing).txt";*/
+	
 
 	string outputFilePath = "C:\\Users\\ethan\\Desktop\\out.txt";
 
-	/*SymbolTable symtab(symbolFilePath);
-	LiteralTable littab(symbolFilePath);
+	
+	/*int avg = 0;
+	int numTimes = 1000;
+	for (int i = 0; i < numTimes; i++) {
+		clock_t Start = clock();
 
-	auto ans = symtab.getSymbol(0);
+		Dissassemble test(inputFilePath, outputFilePath, symbolFilePath);
+		test.disassemble();
 
-	cout << ans << endl;*/
+		avg += (clock() - Start);
 
-	/*int progctr = 0;
-	string currLine = "T0000001E";
-	string objectCode = "050000";
-
-	currLine.append(objectCode);*/
+		
+	}
+	
+	cout << "took: " << (double) avg / numTimes << " ms" << endl << endl;
+	*/
+	
 
 	Dissassemble test(inputFilePath, outputFilePath, symbolFilePath);
 	test.disassemble();
 
-	//cout << Convert::negativeHexToPositiveDecimal("FEC") << endl;
 
     return 0;
 }

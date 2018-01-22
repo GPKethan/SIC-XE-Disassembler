@@ -44,7 +44,7 @@ void IOHandler::writeOut(SIC_LineBuilder &line, Flags &flags) {
 
 	// Handle a special case 
 	if (line.opcode == "ldb")
-		/*outFile*/ cout << setw(9) << left << "" << setw(9) << left << "BASE" << setw(12) << left << line.operand << endl;
+		outFile /*cout*/<< setw(9) << left << "" << setw(9) << left << "BASE" << setw(12) << left << line.operand << endl;
 
 };
 
@@ -53,7 +53,7 @@ int IOHandler::writeOutLtorg(LiteralTable &littab, int currAddr) {
 	if (!littab.hasLiteralAt(currAddr))
 		return 0;
 
-	/*outFile*/ cout << setw(14) << right << "LTORG" << endl;
+	outFile /*cout*/<< setw(14) << right << "LTORG" << endl;
 
 	int poolLength = 0;
 	while (littab.getLiteral(currAddr) != "") {
@@ -86,24 +86,24 @@ void IOHandler::getLine(string &holder) {
 };
 
 void IOHandler::writeOutSymbol(SIC_LineBuilder &line) {
-	/*outFile*/ cout << setw(9) << left << line.symbol;
+	outFile /*cout*/<< setw(9) << left << line.symbol;
 };
 
 void IOHandler::writeOutOpcode(Flags &flags, SIC_LineBuilder &line) {
 	if (flags.getIsExtended())
-		/*outFile*/ cout << "+" << line.opcode << setw(6) << right;
+		outFile /*cout*/<< "+" << line.opcode << setw(6) << right;
 	else
-		/*outFile*/ cout << setw(9) << left << line.opcode;
+		outFile /*cout*/<< setw(9) << left << line.opcode;
 };
 
 void IOHandler::writeOutOperand(Flags & flags, SIC_LineBuilder &line) {
 	if (flags.getIsImmediate() && !flags.getIsSimpleAddressing() && line.format >= 3)
-		/*outFile*/ cout << "#" << line.operand << setw(4) << left;
+		outFile /*cout*/<< "#" << line.operand << setw(4) << left;
 	else if (flags.getIsIndirect() && !flags.getIsSimpleAddressing() && line.format >= 3)
-		/*outFile*/ cout << "@" << line.operand << setw(4) << left;
+		outFile /*cout*/<< "@" << line.operand << setw(4) << left;
 	else if (flags.getIsIndexAddressing() && line.format >= 3)
-		/*outFile*/ cout << line.operand << ",X" << setw(4) << left;
+		outFile /*cout*/<< line.operand << ",X" << setw(4) << left;
 	else
-		/*outFile*/ cout << "" << line.operand << setw(4) << left;
-	/*outFile*/ cout << endl;
+		outFile /*cout*/<< "" << line.operand << setw(4) << left;
+	outFile /*cout*/<< endl;
 };

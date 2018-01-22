@@ -101,7 +101,8 @@ void Dissassemble::readTextRecord() {
 
 	iohandler.getLine(currLine);
 
-	if (currLine[0] == 'M' || currLine[0] == 'E')
+	if (currLine[REC_TYPE_FLAG_POS] == MODIFICATION || 
+		currLine[REC_TYPE_FLAG_POS] == END)
 		return;
 
 	// We could ignore this part, BUT if something went wrong in the previous text record 
@@ -125,7 +126,7 @@ void Dissassemble::readTextRecord() {
 		else if (line.format == 4)
 			flagSet = formatThreeAndFour(line, i);
 		
-		// If the flags weren't set then we know something fucky is going on
+		// If the flags weren't set then we know something WEIRD is going on
 		if (!flagSet || isWordDirective(line)) {
 			wordByte(line, i);
 			break;

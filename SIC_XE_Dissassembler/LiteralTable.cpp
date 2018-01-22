@@ -50,7 +50,7 @@ LiteralTable::LiteralTable(string filename) {
 
 	fillTable(file);
 
-	temPrint();
+	//temPrint();
 
 	file.close();
 
