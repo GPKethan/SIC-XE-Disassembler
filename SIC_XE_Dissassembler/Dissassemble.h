@@ -15,12 +15,18 @@
 #include "SIC_LineBuilder.h"
 
 #define RECORD_ADDR_POS		1
-#define PROG_LTH_OFFSET		14
+#define RECORD_ADDR_LTH		6
+
 #define TEXT_REC_START_POS	9
+
+#define PROG_LTH_OFFSET		14
+
 #define INDIRECT_OFFSET		1
 #define INDEXED_OFFSET		2
 #define DISPLACEMENT_OFFSET 3
+
 #define REC_TYPE_FLAG_POS	0
+
 #define MODIFICATION		'M'
 #define END					'E'
 
@@ -38,7 +44,7 @@ public:
 	The only function in this class that should be called (not including ctor's). 
 	It is the manager of the class that starts the execution of the necessary functions
 	*/
-	void disassemble();
+	void start();
 
 private:
 	//----GlobalVars----

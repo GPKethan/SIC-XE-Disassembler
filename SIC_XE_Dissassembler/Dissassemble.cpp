@@ -65,7 +65,7 @@ Dissassemble::~Dissassemble() {
 /*
 
 */
-void Dissassemble::disassemble() {
+void Dissassemble::start() {
 
 	readHeadRecord();
 
@@ -83,7 +83,7 @@ iohandler to print it out.
 */
 void Dissassemble::readHeadRecord() {
 	iohandler.getLine(currLine);
-	progName = currLine.substr(RECORD_ADDR_POS, 6);
+	progName = currLine.substr(RECORD_ADDR_POS, RECORD_ADDR_LTH);
 	progLength = Convert::hexToDecimal(currLine.substr(PROG_LTH_OFFSET));
 	SIC_LineBuilder toPrint(progName, "START", "");
 	iohandler.writeOut(toPrint, flags);
@@ -108,7 +108,7 @@ void Dissassemble::readTextRecord() {
 	// We could ignore this part, BUT if something went wrong in the previous text record 
 	//   the progctr variable *could* also be wrong, so might as well set it to the 
 	//   correct value. Better safe than sorry
-	progctr = Convert::hexToDecimal(currLine.substr(RECORD_ADDR_POS, 6));
+	progctr = Convert::hexToDecimal(currLine.substr(RECORD_ADDR_POS, RECORD_ADDR_LTH));
 
 	for (int i = TEXT_REC_START_POS; i < currLine.size();) {
 
@@ -119,6 +119,11 @@ void Dissassemble::readTextRecord() {
 			continue;
 		}
 
+		//	See page 38, 1st paragraph of Clean Code; This "section" of code violates EVERYTHING 
+		// that he said shouldn't be violated. R E F A C T O R   T H I S
+		//
+		//  "The solution to this problem... is to bury [it] in the basement of an AbstractFactor, 
+		// and never let anyone see it."
 		SIC_LineBuilder line(symtab, currLine, i, progctr);
 		bool flagSet = true;
 		if (line.format == 2)
@@ -149,7 +154,7 @@ iohandler to print it out.
 */
 void Dissassemble::readEndRecord() {
 
-	while (currLine[0] != 'E')
+	while (currLine[REC_TYPE_FLAG_POS] != END)
 		iohandler.getLine(currLine);
 	
 	int addr = Convert::hexToDecimal(currLine.substr(RECORD_ADDR_POS));
@@ -218,7 +223,10 @@ Parameter:	SIC_LineBuilder &line - the line we're creating
 */
 void Dissassemble::formatTwo(SIC_LineBuilder &line, int index) {
 
-	int registerMnemonic = stoi(currLine.substr(index + 2, 1));
+	const int REG_1_START_POS = index + 2;
+	const int REG_2_START_POS = index + 3;
+
+	int registerMnemonic = stoi(currLine.substr(REG_1_START_POS, 1));
 	string registerOne = registerTable.at(registerMnemonic);
 	line.operand.append(registerOne);
 
@@ -226,7 +234,7 @@ void Dissassemble::formatTwo(SIC_LineBuilder &line, int index) {
 	if (line.opcode == "clear" || line.opcode == "tixr")
 		return;
 
-	registerMnemonic = stoi(currLine.substr(index + 3, 1));
+	registerMnemonic = stoi(currLine.substr(REG_2_START_POS, 1));
 	string registerTwo = registerTable.at(registerMnemonic);
 	line.operand.push_back(',');
 	line.operand.append(registerTwo);
@@ -267,6 +275,8 @@ bool Dissassemble::formatThreeAndFour(SIC_LineBuilder &line, int index) {
 PLEASE NOTE: I realize I could simplify this by directly putting the conditionals 
 			 in the if statements BUT I chose not to because naming the bool values makes 
 			 the program easier to read/understand.
+
+If you're reading this method, I AM SORRY.
 
 Checks if the current info if "nonsense". If it is, then we know that we're
 dealing with a WORD or BYTE Directive.
@@ -334,10 +344,10 @@ void Dissassemble::wordByte(SIC_LineBuilder &line, int index) {
 		if (littab.hasLiteralAt(progctr))
 			break;
 
-		int nextSymAddr = symtab.getNextSymbol(progctr).getValue();
-		nextSymAddr = (nextSymAddr == progctr || nextSymAddr == INT_MIN) ? progLength : nextSymAddr;
+		int nextSymbolAddr = symtab.getNextSymbol(progctr).getValue();
+		nextSymbolAddr = (nextSymbolAddr == progctr || nextSymbolAddr == INT_MIN) ? progLength : nextSymbolAddr;
 
-		int delta = nextSymAddr - progctr;
+		int delta = nextSymbolAddr - progctr;
 		int lthToReadIn = delta * 2;
 
 		line.symbol = symtab.getSymbol(progctr);
@@ -359,7 +369,7 @@ Handles the RESW && RESB assembler directives.
 void Dissassemble::reswResb() {
 
 	string nextLine = iohandler.peekNextLine();
-	int nextLineAddr = Convert::hexToDecimal(nextLine.substr(RECORD_ADDR_POS, 6));
+	int nextLineAddr = Convert::hexToDecimal(nextLine.substr(RECORD_ADDR_POS, RECORD_ADDR_LTH));
 	if (nextLine[0] == 'M' || nextLine[0] == 'E' || nextLineAddr == 0)
 		nextLineAddr = progLength;
 
