@@ -56,7 +56,7 @@ int main() {
 	
 
 	Dissassemble test(inputFilePath, outputFilePath, symbolFilePath);
-	test.start();
+	test.readRecords();
 
 
     return 0;

@@ -44,7 +44,7 @@ public:
 	The only function in this class that should be called (not including ctor's). 
 	It is the manager of the class that starts the execution of the necessary functions
 	*/
-	void start();
+	void readRecords();
 
 private:
 	//----GlobalVars----
@@ -53,7 +53,7 @@ private:
 
 	Flags flags;
 
-	int base;					// Value is in base_10
+	int baseRegisterVal;		// Value is in base_10
 
 	int progctr;				// Value is in base_10
 	int progLength;
@@ -71,12 +71,12 @@ private:
 	void readEndRecord();
 
 	/*
-	Calculates what the line's operand is.
+	Tells us if the current line is a modification or end record.
 
-	Parameter:	SIC_LineBuilder &line - the line we're creating
-	Return:		The target address
+	@param	lineToCheck - the line we're inspecting to see if its a mod/end record
+	@return	true if the current line is a mod/end record, false otherwise
 	*/
-	int calculateTargetAddress(SIC_LineBuilder &line);
+	bool isModOrEndRecord(string &lineToCheck);
 
 	/*
 	Updates the Program Counter variable, by adding the offest to it.
@@ -84,7 +84,7 @@ private:
 	Parameter:	int offset - The format of the current opcode
 	*/
 	void updateProgctr(int offset);
-	
+
 	/*
 	PLEASE NOTE: I'm positive this method should be in LineBuilder, HOWEVER if I put 
 				 this method in LineBuilder then I have to put formatThreeAndFour() 
@@ -131,9 +131,18 @@ private:
 	Checks if the current info if "nonsense". If it is, then we know that we're
 	  dealing with a WORD or BYTE Directive.
 
-	Parameter:	SIC_LineBuilder &line - the line we're creating
+	Parameter:	line	- the line we're creating
+	Parameter:	flagSet - tells us if the flag object got set
 	*/
-	bool isWordDirective(SIC_LineBuilder &line);
+	bool isWordByteDirective(SIC_LineBuilder &line, bool flagSet);
+
+	/*
+	Calculates what the line's operand is.
+
+	Parameter:	SIC_LineBuilder &line - the line we're creating
+	Return:		The target address
+	*/
+	int calculateTargetAddress(SIC_LineBuilder &line);
 
 	/*
 	Handles the word and byte assembler directives.
@@ -141,12 +150,13 @@ private:
 	Parameter:	SIC_LineBuilder &line - the line we're creating
 				int index - the position we're at in currLine
 	*/
-	void wordByte(SIC_LineBuilder &line, int index);
+	void handleWordByteDirectives(SIC_LineBuilder &line, int index);
 
 	/*
 	Handles the RESW && RESB assembler directives.
 	*/
-	void reswResb();
+	void handleReservationDirectives();
+	
 
 	// Temp thing for stuff
 	void stopper();

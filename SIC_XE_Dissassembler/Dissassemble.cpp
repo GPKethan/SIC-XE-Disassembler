@@ -46,7 +46,7 @@ Dissassemble::Dissassemble(string inputPath, string outputPath, string symbolFil
 
 	flags = Flags::instantiate();
 
-	base = 0;
+	baseRegisterVal = 0;
 
 	progctr = 0;
 	progLength = 0;
@@ -65,7 +65,7 @@ Dissassemble::~Dissassemble() {
 /*
 
 */
-void Dissassemble::start() {
+void Dissassemble::readRecords() {
 
 	readHeadRecord();
 
@@ -90,7 +90,7 @@ void Dissassemble::readHeadRecord() {
 };
 
 /*
-PLEASE NOTE: This method also handles *MOST* cases where assembler directives show 
+PLEASE NOTE: This method also handles *MOST* cases where assembler directives show
 			 up (i.e. LTORG, BASE, EQU, WORD/BYTE, RESW/RESB).
 
 1) Reads in a single Text Record
@@ -101,8 +101,7 @@ void Dissassemble::readTextRecord() {
 
 	iohandler.getLine(currLine);
 
-	if (currLine[REC_TYPE_FLAG_POS] == MODIFICATION || 
-		currLine[REC_TYPE_FLAG_POS] == END)
+	if (isModOrEndRecord(currLine))
 		return;
 
 	// We could ignore this part, BUT if something went wrong in the previous text record 
@@ -130,10 +129,10 @@ void Dissassemble::readTextRecord() {
 			formatTwo(line, i);
 		else if (line.format == 4)
 			flagSet = formatThreeAndFour(line, i);
-		
+
 		// If the flags weren't set then we know something WEIRD is going on
-		if (!flagSet || isWordDirective(line)) {
-			wordByte(line, i);
+		if (isWordByteDirective(line, flagSet)) {
+			handleWordByteDirectives(line, i);
 			break;
 		}
 
@@ -144,19 +143,19 @@ void Dissassemble::readTextRecord() {
 
 	}
 
-	reswResb();
+	handleReservationDirectives();
 
 };
 
 /*
-Deals with the End Record by reading in all the necessary info and telling 
+Deals with the End Record by reading in all the necessary info and telling
 iohandler to print it out.
 */
 void Dissassemble::readEndRecord() {
 
 	while (currLine[REC_TYPE_FLAG_POS] != END)
 		iohandler.getLine(currLine);
-	
+
 	int addr = Convert::hexToDecimal(currLine.substr(RECORD_ADDR_POS));
 	string operand = symtab.getSymbol(addr);
 	SIC_LineBuilder toPrint("", "END", progName);
@@ -165,25 +164,14 @@ void Dissassemble::readEndRecord() {
 };
 
 /*
-Calculates what the line's operand is.
+Tells us if the current line is a modification or end record.
 
-Parameter:	SIC_LineBuilder &line - the line we're creating
-Return:		The target address
+@param	lineToCheck - the line we're inspecting to see if its a mod/end record
+@return	true if the current line is a mod/end record, false otherwise
 */
-int Dissassemble::calculateTargetAddress(SIC_LineBuilder &line) {
-	
-	if (line.format == 4)
-		return line.displacement;
-
-	int modifier = flags.getIsBaseRelative() ? base : progctr + line.format;
-	if (!flags.getIsBaseRelative() && !flags.getIsPcRelative())
-		modifier = 0;
-
-	if (line.isDispNegative)
-		return modifier - line.displacement;
-
-	return line.displacement + modifier;
-
+bool Dissassemble::isModOrEndRecord(string &lineToCheck) {
+	return	lineToCheck[REC_TYPE_FLAG_POS] == MODIFICATION ||
+			lineToCheck[REC_TYPE_FLAG_POS] == END;
 };
 
 /*
@@ -196,10 +184,10 @@ void Dissassemble::updateProgctr(int offset) {
 };
 
 /*
-PLEASE NOTE: I'm positive this method should be in LineBuilder, HOWEVER if I put 
-			 this method in LineBuilder then I have to put formatThreeAndFour() 
-			 in there as well. The problem with this is that formatThreeAndFour() 
-			 is dependent on many functions and variables that are only in this class. 
+PLEASE NOTE: I'm positive this method should be in LineBuilder, HOWEVER if I put
+			 this method in LineBuilder then I have to put formatThreeAndFour()
+			 in there as well. The problem with this is that formatThreeAndFour()
+			 is dependent on many functions and variables that are only in this class.
 			 SO, I can't move it anywhere until I figure something else out
 
 Handles cases when the opcode is of format 1.
@@ -211,10 +199,10 @@ void Dissassemble::formatOne(SIC_LineBuilder &line) {
 };
 
 /*
-PLEASE NOTE: I'm positive this method should be in LineBuilder, HOWEVER if I put 
-			 this method in LineBuilder then I have to put formatThreeAndFour() 
-			 in there as well. The problem with this is that formatThreeAndFour() 
-			 is dependent on many functions and variables that are only in this class. 
+PLEASE NOTE: I'm positive this method should be in LineBuilder, HOWEVER if I put
+			 this method in LineBuilder then I have to put formatThreeAndFour()
+			 in there as well. The problem with this is that formatThreeAndFour()
+			 is dependent on many functions and variables that are only in this class.
 			 SO, I can't move it anywhere until I figure something else out
 
 Handles cases when the opcode is of format 2.
@@ -242,12 +230,12 @@ void Dissassemble::formatTwo(SIC_LineBuilder &line, int index) {
 };
 
 /*
-PLEASE NOTE: I'm positive this method should be in LineBuilder, HOWEVER if I put 
-			 this method in LineBuilder then I have to put formatThreeAndFour() 
-			 in there as well. The problem with this is that formatThreeAndFour() 
-			 is dependent on many functions and variables that are only in this class. 
+PLEASE NOTE: I'm positive this method should be in LineBuilder, HOWEVER if I put
+			 this method in LineBuilder then I have to put formatThreeAndFour()
+			 in there as well. The problem with this is that formatThreeAndFour()
+			 is dependent on many functions and variables that are only in this class.
 			 SO, I can't move it anywhere until I figure something else out
-	
+
 Handles cases when the opcode is of format 3/4.
 
 Parameter:	SIC_LineBuilder &line - the line we're creating
@@ -265,15 +253,15 @@ bool Dissassemble::formatThreeAndFour(SIC_LineBuilder &line, int index) {
 	int addr = calculateTargetAddress(line);
 	line.setOperand(symtab, littab, flags, addr);
 
-	base = (line.opcode == "ldb") ? addr : base;
+	baseRegisterVal = (line.opcode == "ldb") ? addr : baseRegisterVal;
 
 	return true;
 
 };
 
 /*
-PLEASE NOTE: I realize I could simplify this by directly putting the conditionals 
-			 in the if statements BUT I chose not to because naming the bool values makes 
+PLEASE NOTE: I realize I could simplify this by directly putting the conditionals
+			 in the if statements BUT I chose not to because naming the bool values makes
 			 the program easier to read/understand.
 
 If you're reading this method, I AM SORRY.
@@ -284,7 +272,10 @@ dealing with a WORD or BYTE Directive.
 Parameter:	SIC_LineBuilder &line - the line we're creating
 Return:		true if it is a WORD/BYTE directive, otherwise false.
 */
-bool Dissassemble::isWordDirective(SIC_LineBuilder &line) {
+bool Dissassemble::isWordByteDirective(SIC_LineBuilder &line, bool flagSet) {
+
+	if (!flagSet)
+		return true;
 
 	// if format4 && immediate OR indirect is set -> return false
 	if (flags.getIsExtended() && (flags.getIsImmediate() || flags.getIsIndirect()))
@@ -299,8 +290,8 @@ bool Dissassemble::isWordDirective(SIC_LineBuilder &line) {
 	if (flags.getIsBaseRelative() && targetAddr < 0)
 		return true;
 
-	bool formatsDoNotMatch = Optab::getFormat(line.mnemonic) != line.format && 
-							 Optab::getFormat(line.mnemonic) != 4;
+	bool formatsDoNotMatch = Optab::getFormat(line.mnemonic) != line.format &&
+		Optab::getFormat(line.mnemonic) != 4;
 	if (formatsDoNotMatch)
 		return true;
 
@@ -326,16 +317,38 @@ bool Dissassemble::isWordDirective(SIC_LineBuilder &line) {
 };
 
 /*
+Calculates what the line's operand is.
+
+Parameter:	SIC_LineBuilder &line - the line we're creating
+Return:		The target address
+*/
+int Dissassemble::calculateTargetAddress(SIC_LineBuilder &line) {
+
+	if (line.format == 4)
+		return line.displacement;
+
+	int modifier = flags.getIsBaseRelative() ? baseRegisterVal : progctr + line.format;
+	if (!flags.getIsBaseRelative() && !flags.getIsPcRelative())
+		modifier = 0;
+
+	if (line.isDispNegative)
+		return modifier - line.displacement;
+
+	return line.displacement + modifier;
+
+};
+
+/*
 Handles the word and byte assembler directives.
 
 Parameter:	SIC_LineBuilder &line - the line we're creating
 int index - the position we're at in currLine
 */
-void Dissassemble::wordByte(SIC_LineBuilder &line, int index) {
+void Dissassemble::handleWordByteDirectives(SIC_LineBuilder &line, int index) {
 
 	// We want to reset the flags because they're set to whatever was printed earlier
 	flags.resetFlags();
-	
+
 	// set format to an invalid format so that nothing weird prints
 	line.format = -1;
 
@@ -352,12 +365,12 @@ void Dissassemble::wordByte(SIC_LineBuilder &line, int index) {
 
 		line.symbol = symtab.getSymbol(progctr);
 		line.opcode = (delta % 3 == 0) ? "WORD" : "BYTE";
-		line.operand = currLine.substr(index, lthToReadIn);		
+		line.operand = currLine.substr(index, lthToReadIn);
 
 		updateProgctr(delta);
 		index += lthToReadIn;
 
-		iohandler.writeOut(line, flags);		
+		iohandler.writeOut(line, flags);
 
 	}
 
@@ -366,11 +379,11 @@ void Dissassemble::wordByte(SIC_LineBuilder &line, int index) {
 /*
 Handles the RESW && RESB assembler directives.
 */
-void Dissassemble::reswResb() {
+void Dissassemble::handleReservationDirectives() {
 
 	string nextLine = iohandler.peekNextLine();
 	int nextLineAddr = Convert::hexToDecimal(nextLine.substr(RECORD_ADDR_POS, RECORD_ADDR_LTH));
-	if (nextLine[0] == 'M' || nextLine[0] == 'E' || nextLineAddr == 0)
+	if (isModOrEndRecord(nextLine) || nextLineAddr == 0)
 		nextLineAddr = progLength;
 
 	int delta = INT_MIN;
