@@ -56,7 +56,7 @@ int main() {
 	
 
 	Dissassemble test(inputFilePath, outputFilePath, symbolFilePath);
-	test.disassemble();
+	test.start();
 
 
     return 0;

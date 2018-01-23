@@ -22,7 +22,7 @@ string Optab::getMnemonic(char first, char second) {
 
 	string mnemonic = "  ";
 	mnemonic[0] = first;
-	mnemonic[1] = Convert::binToHex(secondInBinary)[0];
+	mnemonic[1] = Convert::binaryToHex(secondInBinary)[0];
 
 	return mnemonic;
 

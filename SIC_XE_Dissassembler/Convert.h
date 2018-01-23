@@ -44,7 +44,7 @@ public:
 		return hexToBinary(string(1, toConvert));
 	};
 
-	static string binToHex(string toConvert) {
+	static string binaryToHex(string toConvert) {
 
 		bitset<MAX_BITSET> bs(toConvert);
 		unsigned long tempLong = bs.to_ulong();
@@ -58,18 +58,8 @@ public:
 
 	};
 
-	static int binToDecimal(string toConvert) {
-		return hexToDecimal(binToHex(toConvert));
-	};
-
-	static int stringToInt(string toConvert) {
-
-		stringstream ss(toConvert);
-		int x;
-		ss >> x;
-		
-		return x;
-
+	static int binaryToDecimal(string toConvert) {
+		return hexToDecimal(binaryToHex(toConvert));
 	};
 
 	static int negativeHexToPositiveDecimal(string toConvert) {

@@ -116,7 +116,7 @@ void LiteralTable::fillTable(ifstream &file) {
 
 		string name = removeWhitespace(currLine.substr(NAM_POS, MAX_NAM));
 		string literal = removeWhitespace(currLine.substr(LIT_POS, MAX_LIT));
-		int length = Convert::stringToInt(currLine.substr(LTH_POS, MAX_LTH));
+		int length = stoi(currLine.substr(LTH_POS, MAX_LTH));
 		int addr = Convert::hexToDecimal(removeWhitespace(currLine.substr(ADR_POS, MAX_ADR)));
 
 		string tempLth = currLine.substr(LTH_POS, MAX_LTH);
