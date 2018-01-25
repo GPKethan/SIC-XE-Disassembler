@@ -36,9 +36,7 @@ const unordered_map<int, string> Dissassemble::registerTable{
 	{ 9, "SW" }
 };
 
-/*
-Ctor
-*/
+
 Dissassemble::Dissassemble(string inputPath, string outputPath, string symbolFile) {
 
 	symtab = SymbolTable::open(symbolFile);
@@ -55,32 +53,22 @@ Dissassemble::Dissassemble(string inputPath, string outputPath, string symbolFil
 
 };
 
+
 /*
-The desctuctor; kills IOHandler.
+Kills IOHandler.
 */
 Dissassemble::~Dissassemble() {
 	iohandler.close();
 };
 
-/*
 
-*/
 void Dissassemble::readRecords() {
-
 	readHeadRecord();
-
-	do
-		readTextRecord();
-	while (currLine[0] == 'T');
-
+	readTextRecords();
 	readEndRecord();
-
 };
 
-/*
-Deals with the Header Record by reading in all the necessary info and telling
-iohandler to print it out.
-*/
+
 void Dissassemble::readHeadRecord() {
 	iohandler.getLine(currLine);
 	progName = currLine.substr(RECORD_ADDR_POS, RECORD_ADDR_LTH);
@@ -89,24 +77,33 @@ void Dissassemble::readHeadRecord() {
 	iohandler.writeOut(toPrint, flags);
 };
 
-/*
-PLEASE NOTE: This method also handles *MOST* cases where assembler directives show
-			 up (i.e. LTORG, BASE, EQU, WORD/BYTE, RESW/RESB).
 
-1) Reads in a single Text Record
-2) Sets up a SIC_LineBuilder with all the necessary info
+/*
+Wrapper function for readSingleTextRecord()
+*/
+void Dissassemble::readTextRecords() {
+	do
+		readSingleTextRecord();
+	while (currLine[0] == 'T');
+};
+
+
+/*
+	There's a lot of stuff going on in this method (I'm working on refactoring it), but for 
+now this is the jist of whats happening:
+1) Read in a text record
+2) Set up SIC_LineBuilder with all the necessary info
 3) Lets IOHandler do the rest of the work
 */
-void Dissassemble::readTextRecord() {
+void Dissassemble::readSingleTextRecord() {
 
 	iohandler.getLine(currLine);
 
 	if (isModOrEndRecord(currLine))
 		return;
 
-	// We could ignore this part, BUT if something went wrong in the previous text record 
-	//   the progctr variable *could* also be wrong, so might as well set it to the 
-	//   correct value. Better safe than sorry
+	//	We could ignore this part, BUT if something went wrong in the previous text record 
+	// the progctr variable *could* also be wrong, so we set it to the correct value.
 	progctr = Convert::hexToDecimal(currLine.substr(RECORD_ADDR_POS, RECORD_ADDR_LTH));
 
 	for (int i = TEXT_REC_START_POS; i < currLine.size();) {
@@ -126,11 +123,10 @@ void Dissassemble::readTextRecord() {
 		SIC_LineBuilder line(symtab, currLine, i, progctr);
 		bool flagSet = true;
 		if (line.format == 2)
-			formatTwo(line, i);
+			handleFormatTwo(line, i);
 		else if (line.format == 4)
-			flagSet = formatThreeAndFour(line, i);
+			flagSet = handleFormatThreeAndFour(line, i);
 
-		// If the flags weren't set then we know something WEIRD is going on
 		if (isWordByteDirective(line, flagSet)) {
 			handleWordByteDirectives(line, i);
 			break;
@@ -147,10 +143,7 @@ void Dissassemble::readTextRecord() {
 
 };
 
-/*
-Deals with the End Record by reading in all the necessary info and telling
-iohandler to print it out.
-*/
+
 void Dissassemble::readEndRecord() {
 
 	while (currLine[REC_TYPE_FLAG_POS] != END)
@@ -163,53 +156,27 @@ void Dissassemble::readEndRecord() {
 
 };
 
-/*
-Tells us if the current line is a modification or end record.
 
-@param	lineToCheck - the line we're inspecting to see if its a mod/end record
-@return	true if the current line is a mod/end record, false otherwise
-*/
 bool Dissassemble::isModOrEndRecord(string &lineToCheck) {
 	return	lineToCheck[REC_TYPE_FLAG_POS] == MODIFICATION ||
 			lineToCheck[REC_TYPE_FLAG_POS] == END;
 };
 
-/*
-Updates the Program Counter variable, by adding the offest to it.
 
+/*
 Parameter:	int offset - The format of the current opcode
 */
 void Dissassemble::updateProgctr(int offset) {
 	progctr += offset;
 };
 
-/*
-PLEASE NOTE: I'm positive this method should be in LineBuilder, HOWEVER if I put
-			 this method in LineBuilder then I have to put formatThreeAndFour()
-			 in there as well. The problem with this is that formatThreeAndFour()
-			 is dependent on many functions and variables that are only in this class.
-			 SO, I can't move it anywhere until I figure something else out
 
-Handles cases when the opcode is of format 1.
-
-Parameter:	SIC_LineBuilder &line - the line we're creating
-*/
-void Dissassemble::formatOne(SIC_LineBuilder &line) {
+void Dissassemble::handleFormatOne(SIC_LineBuilder &line) {
 	//TODO: code this
 };
 
-/*
-PLEASE NOTE: I'm positive this method should be in LineBuilder, HOWEVER if I put
-			 this method in LineBuilder then I have to put formatThreeAndFour()
-			 in there as well. The problem with this is that formatThreeAndFour()
-			 is dependent on many functions and variables that are only in this class.
-			 SO, I can't move it anywhere until I figure something else out
 
-Handles cases when the opcode is of format 2.
-
-Parameter:	SIC_LineBuilder &line - the line we're creating
-*/
-void Dissassemble::formatTwo(SIC_LineBuilder &line, int index) {
+void Dissassemble::handleFormatTwo(SIC_LineBuilder &line, int index) {
 
 	const int REG_1_START_POS = index + 2;
 	const int REG_2_START_POS = index + 3;
@@ -229,20 +196,11 @@ void Dissassemble::formatTwo(SIC_LineBuilder &line, int index) {
 
 };
 
+
 /*
-PLEASE NOTE: I'm positive this method should be in LineBuilder, HOWEVER if I put
-			 this method in LineBuilder then I have to put formatThreeAndFour()
-			 in there as well. The problem with this is that formatThreeAndFour()
-			 is dependent on many functions and variables that are only in this class.
-			 SO, I can't move it anywhere until I figure something else out
-
-Handles cases when the opcode is of format 3/4.
-
-Parameter:	SIC_LineBuilder &line - the line we're creating
-			int index - the position we're at in currLine
 Return:		false if the flag was NOT set, otherwise true
 */
-bool Dissassemble::formatThreeAndFour(SIC_LineBuilder &line, int index) {
+bool Dissassemble::handleFormatThreeAndFour(SIC_LineBuilder &line, int index) {
 
 	// If the flags didn't get set something weird is happening, so return
 	if (!flags.setFlags(currLine, index))
@@ -259,11 +217,8 @@ bool Dissassemble::formatThreeAndFour(SIC_LineBuilder &line, int index) {
 
 };
 
-/*
-PLEASE NOTE: I realize I could simplify this by directly putting the conditionals
-			 in the if statements BUT I chose not to because naming the bool values makes
-			 the program easier to read/understand.
 
+/*
 If you're reading this method, I AM SORRY.
 
 Checks if the current info if "nonsense". If it is, then we know that we're
@@ -277,7 +232,7 @@ bool Dissassemble::isWordByteDirective(SIC_LineBuilder &line, bool flagSet) {
 	if (!flagSet)
 		return true;
 
-	// if format4 && immediate OR indirect is set -> return false
+	// is format4 && immediate OR indirect set
 	if (flags.getIsExtended() && (flags.getIsImmediate() || flags.getIsIndirect()))
 		return false;
 
@@ -316,6 +271,7 @@ bool Dissassemble::isWordByteDirective(SIC_LineBuilder &line, bool flagSet) {
 
 };
 
+
 /*
 Calculates what the line's operand is.
 
@@ -338,12 +294,7 @@ int Dissassemble::calculateTargetAddress(SIC_LineBuilder &line) {
 
 };
 
-/*
-Handles the word and byte assembler directives.
 
-Parameter:	SIC_LineBuilder &line - the line we're creating
-int index - the position we're at in currLine
-*/
 void Dissassemble::handleWordByteDirectives(SIC_LineBuilder &line, int index) {
 
 	// We want to reset the flags because they're set to whatever was printed earlier
@@ -376,6 +327,7 @@ void Dissassemble::handleWordByteDirectives(SIC_LineBuilder &line, int index) {
 
 };
 
+
 /*
 Handles the RESW && RESB assembler directives.
 */
@@ -398,6 +350,7 @@ void Dissassemble::handleReservationDirectives() {
 	}
 
 };
+
 
 void Dissassemble::stopper() {
 	// For debugging cause idk how to do that yet with Visual Studio

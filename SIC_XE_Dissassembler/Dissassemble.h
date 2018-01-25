@@ -61,13 +61,14 @@ private:
 	string progName;
 
 	IOHandler iohandler;
-	string currLine;			// Used to hold the current line for input purposes
+	string currLine;			// Used to hold the current line/record for input purposes
 
 	static const unordered_map<int, string> registerTable;
 
 	//----Functions----
 	void readHeadRecord();
-	void readTextRecord();
+	void readTextRecords();
+	void readSingleTextRecord();
 	void readEndRecord();
 
 	/*
@@ -96,7 +97,7 @@ private:
 
 	Parameter:	SIC_LineBuilder &line - the line we're creating
 	*/
-	void formatOne(SIC_LineBuilder &line);
+	void handleFormatOne(SIC_LineBuilder &line);
 
 	/*
 	PLEASE NOTE: I'm positive this method should be in LineBuilder, HOWEVER if I put 
@@ -110,7 +111,7 @@ private:
 	Parameter:	SIC_LineBuilder &line - the line we're creating
 				int index - the position we're at in currLine
 	*/
-	void formatTwo(SIC_LineBuilder &line, int index);
+	void handleFormatTwo(SIC_LineBuilder &line, int index);
 
 	/*
 	PLEASE NOTE: I'm positive this method should be in LineBuilder, HOWEVER if I put 
@@ -125,7 +126,7 @@ private:
 				int index - the position we're at in currLine
 	Return:		false if the flag was NOT set, otherwise true
 	*/
-	bool formatThreeAndFour(SIC_LineBuilder &line, int index);
+	bool handleFormatThreeAndFour(SIC_LineBuilder &line, int index);
 
 	/*
 	Checks if the current info if "nonsense". If it is, then we know that we're
