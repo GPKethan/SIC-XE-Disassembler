@@ -19,7 +19,7 @@ public:
 
 	Flags(string currLine);
 
-	static Flags instantiate();
+	static Flags getInstance();
 
 	/*
 	Set the N, I, X, B, P, and E flags
@@ -29,23 +29,14 @@ public:
 	*/
 	bool setFlags(string &currLine, int index);
 
-	/*
-	RESet the N, I, X, B, P, and E flags
-	*/
 	void resetFlags();
 
 	bool getIsIndirect();
-
 	bool getIsImmediate();
-
 	bool getIsSimpleAddressing();
-
 	bool getIsIndexAddressing();
-
 	bool getIsBaseRelative();
-
 	bool getIsPcRelative();
-
 	bool getIsExtended();
 
 private:
@@ -55,7 +46,7 @@ private:
 	bool isIndexAddressing;		// x
 	bool isBaseRelative;		// b
 	bool isPcRelative;			// p
-	bool isExtended;			// is format 4?
+	bool isExtended;			// is format 4
 
 };
 #endif // FLAGS_H_

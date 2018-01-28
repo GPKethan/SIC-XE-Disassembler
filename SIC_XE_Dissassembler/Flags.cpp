@@ -20,7 +20,7 @@ Flags::Flags(string currLine) {
 	setFlags(currLine, 0);
 };
 
-Flags Flags::instantiate() {
+Flags Flags::getInstance() {
 	return Flags();
 };
 
