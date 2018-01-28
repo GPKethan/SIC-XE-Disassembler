@@ -135,7 +135,7 @@ private:
 	Parameter:	line	- the line we're creating
 	Parameter:	flagSet - tells us if the flag object got set
 	*/
-	bool isWordByteDirective(SIC_LineBuilder &line, bool flagSet);
+	bool isWordByteDirective(SIC_LineBuilder &line);
 
 	/*
 	Calculates what the line's operand is.
