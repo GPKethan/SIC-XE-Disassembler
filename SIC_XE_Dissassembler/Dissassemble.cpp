@@ -42,7 +42,7 @@ Dissassemble::Dissassemble(string inputPath, string outputPath, string symbolFil
 	symtab = SymbolTable::open(symbolFile);
 	littab = LiteralTable::open(symbolFile);
 
-	flags = Flags::instantiate();
+	flags = Flags::getInstance();
 
 	baseRegisterVal = 0;
 
@@ -108,6 +108,8 @@ void Dissassemble::readSingleTextRecord() {
 
 	for (int i = TEXT_REC_START_POS; i < currLine.size();) {
 
+		// This should probably be its own method...
+		// Don't really know how to do that though because of the continue ;_;
 		if (littab.hasLiteralAt(progctr)) {
 			int poolLength = iohandler.writeOutLtorg(littab, progctr);
 			updateProgctr(poolLength / 2);
@@ -127,7 +129,7 @@ void Dissassemble::readSingleTextRecord() {
 		else if (line.format == 4)
 			flagSet = handleFormatThreeAndFour(line, i);
 
-		if (isWordByteDirective(line, flagSet)) {
+		if (!flagSet || isWordByteDirective(line)) {
 			handleWordByteDirectives(line, i);
 			break;
 		}
@@ -172,7 +174,7 @@ void Dissassemble::updateProgctr(int offset) {
 
 
 void Dissassemble::handleFormatOne(SIC_LineBuilder &line) {
-	//TODO: code this
+	//Turns out, you dont need a method for this, but I'm keeping it as a reminder to myself
 };
 
 
@@ -227,10 +229,7 @@ dealing with a WORD or BYTE Directive.
 Parameter:	SIC_LineBuilder &line - the line we're creating
 Return:		true if it is a WORD/BYTE directive, otherwise false.
 */
-bool Dissassemble::isWordByteDirective(SIC_LineBuilder &line, bool flagSet) {
-
-	if (!flagSet)
-		return true;
+bool Dissassemble::isWordByteDirective(SIC_LineBuilder &line) {
 
 	// is format4 && immediate OR indirect set
 	if (flags.getIsExtended() && (flags.getIsImmediate() || flags.getIsIndirect()))
