@@ -16,17 +16,12 @@
 
 #define RECORD_ADDR_POS		1
 #define RECORD_ADDR_LTH		6
-
 #define TEXT_REC_START_POS	9
-
 #define PROG_LTH_OFFSET		14
-
 #define INDIRECT_OFFSET		1
 #define INDEXED_OFFSET		2
 #define DISPLACEMENT_OFFSET 3
-
 #define REC_TYPE_FLAG_POS	0
-
 #define MODIFICATION		'M'
 #define END					'E'
 
@@ -35,9 +30,7 @@ using namespace std;
 class Dissassemble {
 public:
 	Dissassemble() { };
-
 	Dissassemble(string inputPath, string outputPath, string symbolFile);
-
 	~Dissassemble();
 
 	/*
@@ -47,17 +40,15 @@ public:
 	void readRecords();
 
 private:
-	//----GlobalVars----
 	SymbolTable symtab;
 	LiteralTable littab;
-
 	Flags flags;
 
 	int baseRegisterVal;		// Value is in base_10
 
 	int progctr;				// Value is in base_10
-	int progLength;
 
+	int progLength;
 	string progName;
 
 	IOHandler iohandler;
