@@ -25,25 +25,7 @@ int main() {
 	string inputFilePath = "C:\\Users\\ethan\\Documents\\School\\11. Spring 2017\\CS 530 - System Software\\Labs\\assignment 2 stuff\\obj file (more testing).txt";*/
 	
 
-	string outputFilePath = "C:\\Users\\ethan\\Desktop\\out.txt";
-
-	
-	/*int avg = 0;
-	int numTimes = 1000;
-	for (int i = 0; i < numTimes; i++) {
-		clock_t Start = clock();
-
-		Dissassemble test(inputFilePath, outputFilePath, symbolFilePath);
-		test.disassemble();
-
-		avg += (clock() - Start);
-
-		
-	}
-	
-	cout << "took: " << (double) avg / numTimes << " ms" << endl << endl;
-	*/
-	
+	string outputFilePath = "C:\\Users\\ethan\\Desktop\\out.txt";	
 
 	Dissassemble test(inputFilePath, outputFilePath, symbolFilePath);
 	test.readRecords();
